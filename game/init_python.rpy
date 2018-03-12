@@ -194,8 +194,8 @@ init python:
   import itertools
   deck_tmp= list(itertools.product(vals, suits))
   #Also add two Black&Red Jokers
-  deck_tmp.append(tuple(['Jo', 'B']))
-  deck_tmp.append(tuple(['Jo', 'R']))
+  #deck_tmp.append(tuple(['Jo', 'B']))
+  #deck_tmp.append(tuple(['Jo', 'R']))
   return deck_tmp
   del deck_tmp[:]
 
@@ -217,13 +217,13 @@ init python:
   global CardPath
   global ForcedSuit
   global ForcedSuitStr
-  if (CardInPlay[0]=="Jo") and (item[0]<>"Jo"):
+  if (CardInPlay[0]=="A"):
    if (item[1]== ForcedSuit):
     PlayableCard= True
    else:
     renpy.show_screen('comment', "No es la carta adecuada.\nDebe de ser del palo "+str(ForcedSuitStr))
     PlayableCard= False
-  elif  (item[0]=="Jo") or ((item[0]== CardInPlay[0]) or (item[1]==CardInPlay[1])):
+  elif  (item[0]== CardInPlay[0]) or (item[1]==CardInPlay[1]):
     PlayableCard= True
   else:
     renpy.show_screen('comment', "No es la carta adecuada.\nDebe de ser un "+str(CardInPlay[2])+" o el palo "+str(CardInPlay[3]))
@@ -252,9 +252,6 @@ init python:
     value= 13
    elif val== "A":
     val_lang= "As"
-    value= 1
-   elif val== "Jo":
-    val_lang= "Joker"
     value= 50
    else:
     val_lang= val
@@ -275,14 +272,6 @@ init python:
     suit_lang= "Diamantes"
     suit_color= "ff0000"
     suit_icon= "♦"
-   elif suit== "R":
-    suit_lang= "Rojo"
-    suit_color= "ff0000"
-    suit_icon= ""
-   elif suit== "B":
-    suit_lang= "Negro"
-    suit_color= "000000"
-    suit_icon= ""
    deck.append(tuple([val, suit, val_lang, suit_lang, suit_color, suit_icon, value]))
   import random
   random.shuffle(deck)
@@ -314,14 +303,11 @@ init python:
    renpy.hide('deck_img', layer="game")
   return RandomCard
 
- def CheckIsJoker(item):
+ def CheckIsAce(item):
   global ForcedSuit
   global ForcedSuitStr
-  if item[0]== "Jo":
-   if item[1]== "B":
-    shift= menu([('Forzar Picas', 'pikes'), ('Forzar Tréboles', 'clubs')])
-   else:
-    shift= menu([('Forzar Corazones', 'hearts'), ('Forzar Diamantes', 'diamonds')])
+  if item[0]== "A":
+   shift= menu([('Forzar ♠Picas', 'pikes'), ('Forzar ♣Tréboles', 'clubs'), ('Forzar ♥Corazones', 'hearts'), ('Forzar ♦Diamantes', 'diamonds')])
    if shift=="pikes":
     ForcedSuit= "P"
    elif shift=="clubs":
@@ -364,7 +350,7 @@ init python:
      while True:
       itemindex, item= renpy.call_screen('my_hand', True)
       PlayCard(item, itemindex)
-      CheckIsJoker(item)
+      CheckIsAce(item)
       first_turn= False
       me_turn= False
       break     
@@ -384,7 +370,7 @@ init python:
       elif (shift=='play'):
        itemindex, item= renpy.call_screen('my_hand', True)
        if (play_a_card(itemindex, item)== True):
-        CheckIsJoker(item)
+        CheckIsAce(item)
         me_turn= False
         break
       elif (shift=='pass'):
@@ -405,19 +391,21 @@ init python:
      #Calculate what card the adversary will play
      #First what cards in this hand match with the Card in Play
      drawed_cards= 0
-     has_a_joker= False
+     has_a_ace= False
      while True:      
       del cards_to_play[:]
       for item in me.adversary.deck:
-       if (CardInPlay[0]== "Jo"):
-        if (item[0]=="Jo") or (item[1]==ForcedSuit):
+       if (CardInPlay[0]== "A"):
+        if (item[0]=="A") or (item[1]==ForcedSuit):
          cards_to_play.append(item)
-         if item[0]=="Jo": #mark that the adversary has a Joker
-          has_a_joker= True
-       elif (item[0]=="Jo") or ((item[0]==CardInPlay[0]) or (item[1]==CardInPlay[1])):                
+         if item[0]=="A": #mark that the adversary has a Ace
+          has_a_ace= True
+          ace_suit= item[1]
+       elif ((item[0]==CardInPlay[0]) or (item[1]==CardInPlay[1])):                
         cards_to_play.append(item)
-        if item[0]=="Jo": #mark that the adversary has a Joker
-         has_a_joker= True        
+        if item[0]=="A": #mark that the adversary has a Ace
+         has_a_ace= True
+         ace_suit= item[1]      
       if (len(cards_to_play)>0) or (len(deck)==0):
        break
       else:
@@ -428,13 +416,13 @@ init python:
        renpy.show_screen('comment', me.adversary.name +" ha cogido "+ str(drawed_cards)+" cartas del mazo.")      
       #HERE THE ADVERSARY AI ACCORDING HIS GAME LEVEL
       if me.adversary.gamelevel>1:             
-       if (has_a_joker== True) and (len(cards_to_play)==1):  #If the adversary has a Joker and this is his unique playable card then the adversary has 100% of possibility to play the Joker  
-        play_the_joker= True 
-       elif (has_a_joker== True):  #If the adversary has a Joker then the adversary has 50% of possibility to play this 
-        play_the_joker= bool(random.getrandbits(1))
+       if (has_a_ace== True) and (ace_suit==CardInPlay[1]) and (len(cards_to_play)==1):  #If the adversary has an Ace of the same suit as his unique playable card then the adversary has 100% of possibility to play this 
+        play_the_ace= True
+       if (has_a_ace== True) and (ace_suit==CardInPlay[1]):  #If the adversary has an Ace of the same suit then the adversary has 50% of possibility to play this 
+        play_the_ace= bool(random.getrandbits(1))
        else:
-        play_the_joker= False
-       if play_the_joker== False:
+        play_the_ace= False
+       if play_the_ace== False:
         #In this level check the frequency of suits in his hand
         PikesCount= 0
         ClubsCount= 0
@@ -462,11 +450,11 @@ init python:
           else:
            continue  # executed if the loop ended normally (no break)
           break  # executed if 'continue' was skipped (break)        
-       else: #if play the joker
-        for item in cards_to_play: #Search the joker to play
-         if item[0]==  "Jo":
+       else: #if play the ace
+        for item in cards_to_play: #Search the ace to play
+         if item[0]==  "A":
           CardInPlay= item
-          break #not search for the Joker
+          break #not more search for the Ace
       else: #if the player level is =1 then choose a random card
        RandomNumber= random.randint(0,len(cards_to_play)-1)
        CardInPlay= cards_to_play[RandomNumber]             
@@ -481,22 +469,19 @@ init python:
     #--------------- DRAW A PLAYABLE CARD -------------
     if (PlayableCard== True) and (len(me.adversary.deck)>0):
      ShowCardInPlay()
-     if CardInPlay[0]=="Jo": #IF CARD-IN-PLAY IS A JOKER
+     if CardInPlay[0]=="A": #IF CARD-IN-PLAY IS A ACE
       #Force Random Suit
-      if CardInPlay[1]=="B":
-       ForcedSuit= random.choice("PC")
-       if ForcedSuit== "P":
-        ForcedSuitStr= "Picas"
-       else:
-        ForcedSuitStr= "Tréboles"
-      if CardInPlay[1]=="R":
-       ForcedSuit= random.choice("HD")
-       if ForcedSuit== "H":
-        ForcedSuitStr= "Corazones"
-       else:
-        ForcedSuitStr= "Diamantes"
-      renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\nEcha una carta del palo "+ForcedSuitStr+".")
-     else: #IF CARD-IN-PLAY IS A REGULAR CARD (NOT A JOKER)
+      ForcedSuit= random.choice("PCHD")
+      if ForcedSuit== "P":
+       ForcedSuitStr= "Picas"
+      elif ForcedSuit== "C":
+       ForcedSuitStr= "Tréboles"
+      elif ForcedSuit== "H":
+       ForcedSuitStr= "Corazones"
+      else:
+       ForcedSuitStr= "Diamantes"
+      renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\nTe obligo a que eches un palo "+ForcedSuitStr+".")
+     else: #IF CARD-IN-PLAY IS A REGULAR CARD (NOT A ACE)
       renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\nEcha una carta del mismo palo o número.")
     #------IF ADVERSARY HAS NOT A PLAYABLE CARD ---------
     else:
