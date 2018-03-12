@@ -375,6 +375,7 @@ init python:
         break
       elif (shift=='pass'):
        me_turn= False
+       break
      if len(me.deck)==0: #I HAVE NOT CARDS = LAST TURN FOR ME = I WIN!
       break
      #_window_hide()
@@ -497,6 +498,7 @@ init python:
   renpy.hide('card_img', layer="game")
   renpy.hide('deck_img', layer="game")
   renpy.hide_screen("game_data")
+  renpy.hide_screen("my_hand")
   if len(me.deck)==0:    
    #Calculate the score
    won_score= calculate_score(me.adversary)
