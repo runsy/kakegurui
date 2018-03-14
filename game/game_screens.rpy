@@ -7,8 +7,13 @@ screen game_data():
    else:
     pronoun= "Ella"
    _adversary_cards= pronoun+" tiene "+str(len(me.adversary.deck))+" cartas."
+   _cards=""
+   for item2 in me.adversary.deck:
+    _cards= _cards+str(item2[0])+str(item2[1])+", "
   background RoundRect("#00ae426f")  
-  label _adversary_cards
+  hbox:
+   label _adversary_cards
+   label _cards
 
 screen my_hand(clickable):
   layer "game"

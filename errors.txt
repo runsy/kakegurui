@@ -2,8 +2,9 @@
 errors listed below, and try again.
 
 
-File "game/game_screens.rpy", line 1: expected statement.
-    creen game_data():
-                   ^
+File "game/init_python.rpy", line 374: invalid syntax
+        global me.adversary
+                  ^
+    
 
 Ren'Py Version: Ren'Py 6.99.12.2.2029
