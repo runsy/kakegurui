@@ -63,7 +63,7 @@ init python:
     Genre= Enum(["Male", "Female"])
 #-------------------------------------------- 
 #Define the Char class
-    class Charact:
+    class Charact(object):
         def __init__(self, charobj= None, name="", genre= Genre.Male, money=0, affinity=90, love=0, score=0, adversary= None, isknown= False, isfriend= False, gamelevel=1, victorycount=0, downcount=0 ):
             self.adversary= adversary
             self.affinity= affinity
@@ -207,10 +207,14 @@ init python:
         renpy.show('card_img', at_list=[Transform(zoom=0.3, xpos=0.7, ypos=0.05)], layer="game")
         renpy.pause(1.5)
 
-    def PlayCard(item, itemindex):
+    def PlayCard(whatdeck, item, itemindex):
         global CardInPlay
         CardInPlay= item
-        me.deck.pop(itemindex)
+        whatdeck.pop(itemindex)
+        if whatdeck== me.deck:
+            makepause= True
+        else:
+            makepause= False
         ShowCardInPlay()
         ResetPassCount()
 
@@ -233,7 +237,7 @@ init python:
                 renpy.show_screen('comment', "No es la carta adecuada.\nDebe de ser un "+str(CardInPlay[2])+" o el palo "+str(CardInPlay[3]))
                 PlayableCard= False
         if (PlayableCard== True):
-            PlayCard(item, itemindex)
+            PlayCard(me.deck, item, itemindex)
             return True
         else:
             return False
@@ -297,12 +301,12 @@ init python:
             RandomCard= deck.pop(RandomNumber)   
             me.adversary.deck.append(RandomCard)
 
-    def draw_a_card(Charact):
+    def draw_a_card(Character):
         global deck
         import random
         RandomNumber= random.randint(0,len(deck)-1)
         RandomCard= deck.pop(RandomNumber)   
-        Charact.deck.append(RandomCard)
+        Character.deck.append(RandomCard)
         if len(deck)==0:
             renpy.transition(dissolve)
             renpy.hide('deck_img', layer="game")
@@ -334,9 +338,9 @@ init python:
         global PassCount
         PassCount= 0
 
-    def calculate_score(Charact):
+    def calculate_score(Character):
         score= 0
-        for item in Charact.deck:
+        for item in Character.deck:
             score= score + item[6]
         return score
 
@@ -363,7 +367,7 @@ init python:
         #renpy.show_screen('comment', debug, 20)
         return dictionaryofsuits
 
-    def game_start(Charact):
+    def game_start(Charact, YouWinMsg, YouLoseMsg):
         global me
         global CardPath
         global CardInPlay
@@ -372,8 +376,8 @@ init python:
         global ForcedSuitStr
         global PassCount
         global firsthand_numcards
-        me.adversary= Charact
         renpy.block_rollback()
+        me.adversary= Charact
         firsthand_create()
         import random
         me_turn= bool(random.getrandbits(1))
@@ -394,7 +398,7 @@ init python:
                     renpy.show_screen('comment', "Empiezas tú", 2)    
                     while True:
                         itemindex, item= renpy.call_screen('my_hand', True)
-                        PlayCard(item, itemindex)
+                        PlayCard(me.deck, item, itemindex)
                         CheckIsAce(item)
                         first_turn= False
                         me_turn= False
@@ -433,8 +437,7 @@ init python:
                 if first_turn:
                     #-------IF ADVERSARY'S FIRST TURN
                     RandomNumber= random.randint(0,len(me.adversary.deck)-1)
-                    CardInPlay= me.adversary.deck[RandomNumber]
-                    me.adversary.deck.pop(RandomNumber)
+                    PlayCard(me.adversary.deck, me.adversary.deck[RandomNumber], RandomNumber)
                     PlayableCard= True
                     first_turn= False
                 else: #--------TURN OF THE ADVERSARY---------
@@ -444,15 +447,15 @@ init python:
                     has_a_ace= False
                     while True:      
                         del cards_to_play[:]
-                        for item in me.adversary.deck:
+                        for itemindex, item in enumerate(me.adversary.deck):
                             if (CardInPlay[0]== "A") and (ForceSuit== True): #If the playing card is an ACE
                                 if (item[0]=="A") or (item[1]==ForcedSuit): #If Ace or match the forced suit
-                                    cards_to_play.append(item)
+                                    cards_to_play.append((itemindex, item)) #append in cards_to_play list, a tuple of (itemindex, index)
                                     if item[0]=="A": #mark that the adversary has a Ace
                                         has_a_ace= True
                             else: #For common cards ->
                                 if (item[0]=="A") or ((item[0]==CardInPlay[0]) or (item[1]==CardInPlay[1])): #If Ace or match val or suit
-                                    cards_to_play.append(item)
+                                    cards_to_play.append((itemindex, item))
                                     if item[0]=="A": #mark that the adversary has a Ace
                                         has_a_ace= True
                         if (len(cards_to_play)>0) or (len(deck)==0):
@@ -473,48 +476,42 @@ init python:
                                 play_the_ace= False
                             if play_the_ace== False:
                                 #In this level check the frequency of suits in his hand         
-                                    dictionaryofsuits= CalcFrequencyOfSuits(me.adversary.deck, None)
-                                    import operator
-                                    #Order the dictionary suits by its frequency in a decreasing order
-                                    sorted_suit_frequencies= sorted(dictionaryofsuits.items(), key=operator.itemgetter(1), reverse= True)
-                                    #Now get the first card with the suit of max frequency from the playable cards
-                                    for item in cards_to_play:
-                                        for suit in sorted_suit_frequencies: #iterate all the max frequency suits
-                                            if item[1]==  str(suit[0]): #get the first ocurrence
-                                                CardInPlay= item
-                                                break #not seach for other suitable card      
-                                        else:
-                                            continue  # executed if the loop ended normally (no break)
-                                        break  # executed if 'continue' was skipped (break)        
+                                dictionaryofsuits= CalcFrequencyOfSuits(me.adversary.deck, None)
+                                import operator
+                                #Order the dictionary suits by its frequency in a decreasing order
+                                sorted_suit_frequencies= sorted(dictionaryofsuits.items(), key=operator.itemgetter(1), reverse= True)
+                                #Now get the first card with the suit of max frequency from the playable cards
+                                for item in cards_to_play:
+                                    for suit in sorted_suit_frequencies: #iterate all the max frequency suits
+                                        if item[1][1]==  str(suit[0]): #get the first ocurrence
+                                            PlayCard(me.adversary.deck, item[1], item[0])
+                                            break #not seach for other suitable card      
+                                    else:
+                                        continue  # executed if the loop ended normally (no break)
+                                    break  # executed if 'continue' was skipped (break)        
                             else: #if play the ace
-                                for item in cards_to_play: #Search the ace to play
-                                    if item[0]==  "A":                    
-                                        CardInPlay= item
+                                for itemindex, item in cards_to_play: #Search the ace to play
+                                    if item[1][0]==  "A":                    
+                                        PlayCard(me.adversary.deck, item[1], item[0])
                                         if ForceSuit== True:
                                             ForceSuit== False
                                         break #not more search for the Ace
                         else: #if the player level is =1 then choose a random card
                             RandomNumber= random.randint(0,len(cards_to_play)-1)
-                            CardInPlay= cards_to_play[RandomNumber]             
-                        #Quit that card form his/her deck
-                        for itemindex, item in enumerate(me.adversary.deck):
-                            if (item[0]==CardInPlay[0]) and (item[1]==CardInPlay[1]):
-                                me.adversary.deck.pop(itemindex)
-                                break
+                            PlayCard(me.adversary.deck, cards_to_play[RandomNumber][1], cards_to_play[RandomNumber][0])      
                         PlayableCard= True
                     else: 
                         PlayableCard= False
                 #--------------- DRAW A PLAYABLE CARD -------------
                 if (PlayableCard== True) and (len(me.adversary.deck)>0):
-                    ShowCardInPlay()
                     if CardInPlay[0]=="A": #IF CARD-IN-PLAY IS A ACE
                         ForceSuit= True
                         if me.adversary.gamelevel>1: #If adversary level is expert or master
                             #Analyze what is the suitable suit to switch
                             dictionaryofsuits= CalcFrequencyOfSuits(me.adversary.deck, CardInPlay)
-                            #Get the suit of max. frequency
-                            #ForcedSuit= max(dictionaryofsuits, key=lambda key: dictionaryofsuits[key])
+                            #Get the suit of max. frequency ->                           
                             ForcedSuit= max(dictionaryofsuits, key=dictionaryofsuits.get)
+                            #Otra opción a la anterior sentencia: ForcedSuit= max(dictionaryofsuits, key=lambda key: dictionaryofsuits[key])
                             #renpy.show_screen('comment', ForcedSuit, 20) DEBUG
                         else: #if adversary has a game level of 1
                             #Force Random Suit
@@ -557,13 +554,15 @@ init python:
             me.score+= won_score
             me.victorycount+= 1
             me.adversary.downcount+= 1
-            renpy.show_screen('comment', "¡¡¡HAS GANADO "+str(won_score)+" puntos!!!")  
+            renpy.show_screen('comment', "¡¡¡HAS GANADO"+str(won_score)+" puntos!!!")  
+            renpy.say(me.adversary.charobj, YouWinMsg)
             return 1
         elif len(me.adversary.deck)==0:
             renpy.show_screen('comment', "¡¡¡HAS PERDIDO!!!") 
             me.adversary.score+= calculate_score(me)
             me.adversary.victorycount+= 1
             me.downcount+= 1
+            renpy.say(me.adversary.charobj, YouLoseMsg)
             return 2
         else:
             renpy.show_screen('comment', "Habéis empatado.") 

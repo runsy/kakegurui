@@ -2,6 +2,7 @@
 errors listed below, and try again.
 
 
-File "game/init_python.rpy", line 18: indentation mismatch.
+File "game/init_python.rpy", line 449: is not terminated with a newline. (Check strings and parenthesis.)
+                                        cards_to_play.append((itemindex, item) 
 
 Ren'Py Version: Ren'Py 6.99.12.2.2029

@@ -134,7 +134,7 @@ label _010:
     hide nac with dissolve
     show vio neutral at center with move
     vi expectante "Oye, tía, ¿echamos unas cartas?\nHe practicado mucho este verano."
-    $win= game_start(violeta)
+    $whowins= game_start(violeta, "Eres muy buena jugando a las cartas.", "Deberías practicar más, ja, ja, ja.")
     vi expectante "Bueno, y tú, tía, ¿qué hiciste este verano?"
     show vio sonriente
     ma neutral "Nada, me pasó un poco como a ti, tuve que ir de vacaciones con mis padres y... hermanita.\nDe vacaciones a Roma."
