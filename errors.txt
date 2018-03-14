@@ -2,9 +2,6 @@
 errors listed below, and try again.
 
 
-File "game/init_python.rpy", line 374: invalid syntax
-        global me.adversary
-                  ^
-    
+File "game/init_python.rpy", line 18: indentation mismatch.
 
 Ren'Py Version: Ren'Py 6.99.12.2.2029
