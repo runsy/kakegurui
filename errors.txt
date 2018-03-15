@@ -2,7 +2,8 @@
 errors listed below, and try again.
 
 
-File "game/init_python.rpy", line 449: is not terminated with a newline. (Check strings and parenthesis.)
-                                        cards_to_play.append((itemindex, item) 
+File "game/game_screens.rpy", line 23: invalid syntax
+    if clickable== True
+    
 
 Ren'Py Version: Ren'Py 6.99.12.2.2029

@@ -64,7 +64,7 @@ init python:
 #-------------------------------------------- 
 #Define the Char class
     class Charact(object):
-        def __init__(self, charobj= None, name="", genre= Genre.Male, money=0, affinity=90, love=0, score=0, adversary= None, isknown= False, isfriend= False, gamelevel=1, victorycount=0, downcount=0 ):
+        def __init__(self, charobj= None, name="", genre= Genre.Male, money=0, affinity=90, love=0, score=0, adversary= None, isknown= False, isfriend= False, gamelevel=1, victorycount=0, downcount=0, gamecount=0):
             self.adversary= adversary
             self.affinity= affinity
             self.charobj= charobj
@@ -81,6 +81,7 @@ init python:
             self.gamelevel= gamelevel #there is three levels: 1=casual, 2=expert, 3=master
             self.victorycount= victorycount
             self.downcount= downcount
+            self.gamecount= gamecount
             self.items= []
 
         #Buy item 
@@ -209,14 +210,13 @@ init python:
 
     def PlayCard(whatdeck, item, itemindex):
         global CardInPlay
+        global ForceSuit
         CardInPlay= item
         whatdeck.pop(itemindex)
-        if whatdeck== me.deck:
-            makepause= True
-        else:
-            makepause= False
-        ShowCardInPlay()
+        if ForceSuit== True:
+            ForceSuit== False        
         ResetPassCount()
+        ShowCardInPlay()
 
     def play_a_card(itemindex, item):
         global CardInPlay
@@ -226,7 +226,6 @@ init python:
         global ForcedSuitStr
         if (ForceSuit== True) and (CardInPlay[0]=="A"):
             if (item[0]== "A") or (item[1]== ForcedSuit):
-                ForceSuit= False
                 PlayableCard= True
             else:
                 renpy.show_screen('comment', "No es la carta adecuada.\nDebe de ser del palo "+str(ForcedSuitStr))
@@ -285,6 +284,10 @@ init python:
         random.shuffle(deck)
         del deck_tmp[:]
 
+    def GetRandomNum(whatdeck):
+        import random
+        return random.randint(0,len(whatdeck)-1) 
+
     def firsthand_create():
         import random
         global firsthand_numcards
@@ -293,19 +296,16 @@ init python:
         del me.deck[:]
         del me.adversary.deck[:]
         for x in range(0, firsthand_numcards):
-            RandomNumber= random.randint(0,len(deck)-1)
-            RandomCard= deck.pop(RandomNumber)   
+            RandomCard= deck.pop(GetRandomNum(deck))   
             me.deck.append(RandomCard)
         for x in range(0, firsthand_numcards):
-            RandomNumber= random.randint(0,len(deck)-1)
-            RandomCard= deck.pop(RandomNumber)   
+            RandomCard= deck.pop(GetRandomNum(deck))   
             me.adversary.deck.append(RandomCard)
 
     def draw_a_card(Character):
         global deck
         import random
-        RandomNumber= random.randint(0,len(deck)-1)
-        RandomCard= deck.pop(RandomNumber)   
+        RandomCard= deck.pop(GetRandomNum(deck))   
         Character.deck.append(RandomCard)
         if len(deck)==0:
             renpy.transition(dissolve)
@@ -318,6 +318,7 @@ init python:
         global ForcedSuitStr
         if item[0]== "A":
             ForceSuit= True
+            renpy.show_screen('comment', "¿Qué palo se debe jugar?", 1)  
             shift= menu([('Forzar ♠Picas', 'pikes'), ('Forzar ♣Tréboles', 'clubs'), ('Forzar ♥Corazones', 'hearts'), ('Forzar ♦Diamantes', 'diamonds')])
             if shift=="pikes":
                 ForcedSuit= "P"
@@ -398,6 +399,7 @@ init python:
                     renpy.show_screen('comment', "Empiezas tú", 2)    
                     while True:
                         itemindex, item= renpy.call_screen('my_hand', True)
+                        renpy.show_screen('my_hand', False)
                         PlayCard(me.deck, item, itemindex)
                         CheckIsAce(item)
                         first_turn= False
@@ -409,7 +411,7 @@ init python:
                     while True:
                         result= renpy.show_screen('my_hand', False)
                         if len(deck)>0:
-                            shift= menu([('Robar una carta', 'draw'), ('Jugar', 'play')])
+                            shift= menu([('Coger una carta del mazo', 'draw'), ('Jugar una de tus cartas', 'play')])
                         else:
                             shift= menu([('Pasar', 'pass'), ('Jugar', 'play')])
                         if (shift=='draw'):
@@ -417,7 +419,9 @@ init python:
                             renpy.show_screen('comment', "Has obtenido la carta "+ str(DrawedCard[2])+" de "+str(DrawedCard[3]), 2)
                             me_turn= True
                         elif (shift=='play'):
+                            renpy.show_screen('comment', "Escoge una carta.", 1)  
                             itemindex, item= renpy.call_screen('my_hand', True)
+                            renpy.show_screen('my_hand', False) #<-Important if you don't want my hand screen dissapears after the interaction
                             if (play_a_card(itemindex, item)== True):
                                 CheckIsAce(item)
                                 me_turn= False
@@ -436,7 +440,8 @@ init python:
                 #--------TURN OF THE ADVERSARY---------
                 if first_turn:
                     #-------IF ADVERSARY'S FIRST TURN
-                    RandomNumber= random.randint(0,len(me.adversary.deck)-1)
+                    renpy.show_screen('my_hand', False)
+                    RandomNumber= GetRandomNum(me.adversary.deck)
                     PlayCard(me.adversary.deck, me.adversary.deck[RandomNumber], RandomNumber)
                     PlayableCard= True
                     first_turn= False
@@ -447,9 +452,10 @@ init python:
                     has_a_ace= False
                     while True:      
                         del cards_to_play[:]
+                        #pcards_to_play is a list of an integer and a tuple: [index,(val,suit)]
                         for itemindex, item in enumerate(me.adversary.deck):
                             if (CardInPlay[0]== "A") and (ForceSuit== True): #If the playing card is an ACE
-                                if (item[0]=="A") or (item[1]==ForcedSuit): #If Ace or match the forced suit
+                                if (item[1]=="A") or (item[1]==ForcedSuit): #If Ace or match the forced suit
                                     cards_to_play.append((itemindex, item)) #append in cards_to_play list, a tuple of (itemindex, index)
                                     if item[0]=="A": #mark that the adversary has a Ace
                                         has_a_ace= True
@@ -462,15 +468,15 @@ init python:
                             break
                         else:
                             draw_a_card(me.adversary)
-                            drawed_cards= drawed_cards + 1
+                            drawed_cards+= drawed_cards
                     if (len(cards_to_play)>0):
                         if (drawed_cards>0):
                             renpy.show_screen('comment', me.adversary.name +" ha cogido "+ str(drawed_cards)+" cartas del mazo.")      
                         #HERE THE ADVERSARY AI ACCORDING HIS GAME LEVEL
                         if me.adversary.gamelevel>1:             
-                            if (has_a_ace== True) and (len(cards_to_play)==1):  #If the adversary has an Ace of the same suit as his unique playable card then the adversary has 100% of possibility to play this 
+                            if (has_a_ace== True) and (len(cards_to_play)==1):  #If the adversary has an Ace as his unique playable card then the adversary has 100% of possibility to play this 
                                 play_the_ace= True
-                            if (has_a_ace== True):  #If the adversary has an Ace of the same suit then the adversary has 50% of possibility to play this 
+                            elif (has_a_ace== True):  #If the adversary has an Ace of the same suit then the adversary has 50% of possibility to play this 
                                 play_the_ace= bool(random.getrandbits(1))
                             else:
                                 play_the_ace= False
@@ -490,11 +496,9 @@ init python:
                                         continue  # executed if the loop ended normally (no break)
                                     break  # executed if 'continue' was skipped (break)        
                             else: #if play the ace
-                                for itemindex, item in cards_to_play: #Search the ace to play
+                                for item in cards_to_play: #Search the ace to play
                                     if item[1][0]==  "A":                    
                                         PlayCard(me.adversary.deck, item[1], item[0])
-                                        if ForceSuit== True:
-                                            ForceSuit== False
                                         break #not more search for the Ace
                         else: #if the player level is =1 then choose a random card
                             RandomNumber= random.randint(0,len(cards_to_play)-1)
@@ -528,7 +532,8 @@ init python:
                         ResetPassCount()
                         renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\nTe obligo a que eches un palo "+ForcedSuitStr+".")
                     else: #IF CARD-IN-PLAY IS A REGULAR CARD (NOT A ACE)
-                        renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\nEcha una carta del mismo palo o número.")
+                        if (me.gamecount<4):
+                            renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\nEcha una carta del mismo palo o número.")
                 #------IF ADVERSARY HAS NOT A PLAYABLE CARD ---------
                 else:
                     if (len(me.adversary.deck)>0):
@@ -537,9 +542,9 @@ init python:
                         if ForceSuit== True: #Important: If pass the turn, and the ForceSuit is enabled then the ForceSuit is disabled
                             renpy.show_screen('comment', "Al pasar, el forzado a palo "+ForcedSuitStr+" ya no tiene efecto.", 2)
                             ForceSuit= False      
-                    else:
-                            renpy.say(me.adversary.charobj, "Mi última carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\n¡Ya no me quedan más!")
-                            break
+                    else:                        
+                        renpy.say(me.adversary.charobj, "Mi última carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\n¡Ya no me quedan más!")
+                        break
                 #------ ADVERSARY END OF TURN ------------------
                 renpy.block_rollback()
                 me_turn= True
@@ -554,7 +559,8 @@ init python:
             me.score+= won_score
             me.victorycount+= 1
             me.adversary.downcount+= 1
-            renpy.show_screen('comment', "¡¡¡HAS GANADO"+str(won_score)+" puntos!!!")  
+            me.adversary.gamecount+= 1
+            renpy.show_screen('comment', "¡¡¡HAS GANADO "+str(won_score)+" puntos!!!")  
             renpy.say(me.adversary.charobj, YouWinMsg)
             return 1
         elif len(me.adversary.deck)==0:
@@ -562,6 +568,7 @@ init python:
             me.adversary.score+= calculate_score(me)
             me.adversary.victorycount+= 1
             me.downcount+= 1
+            me.gamecount+= 1
             renpy.say(me.adversary.charobj, YouLoseMsg)
             return 2
         else:

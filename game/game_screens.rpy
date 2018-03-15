@@ -17,8 +17,9 @@ screen game_data():
 
 screen my_hand(clickable):
         layer "game"
-        $MyHandLen= len(me.deck)
-        $i= 0
+        python:
+            MyHandLen= len(me.deck)
+            i= 0            
         hbox spacing 0:
             for itemindex, item in enumerate(me.deck):    
                 $CardName= "img/cards/"+str(item[0])+str(item[1])+".png"
