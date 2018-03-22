@@ -124,7 +124,7 @@ init -1 python hide:
     ##   indican la dimensión de los bordes izquierdo/derecho y
     ##   superior/inferior, respectivamente.
 
-    # style.window.background = Frame("frame.png", 12, 12)
+    #style.window.background = Frame("img/gui/textbox_frame.jpg", 25, 25)
     style.window.background = Solid((255, 255, 255, 175))
 
     ## Margin is space surrounding the window, where the background

@@ -177,16 +177,28 @@ init python:
     today= TodayClass(2015, 9, 15, 7, 20)
 
     #Card Game Implementation
-    
-    deck= []
-    CardPath= str
-    CardInPlay= tuple
-    ForceSuit= False
-    ForcedSuit= str
-    ForcedSuitStr= str
-    PassCount= 0
 
-    firsthand_numcards= 7 # set the number of cards in the first hand
+#Define the Char class
+    class _Game():
+        def __init__(self, deck=[], WholeDeck=[], DiscardedDeck=[], CardPath= "", CardInPlay= tuple, ForceSuit= False, ForcedSuit="", ForcedSuitStr="", PassCount=0, NumCards_FirstHand= 7, TurnCount=0, RoundCount=0, MeScore=0, AdversaryScore=0):
+            self.deck= deck          
+            self.WholeDeck= WholeDeck
+            self.DiscardedDeck= DiscardedDeck
+            self.CardPath= CardPath
+            self.CardInPlay= CardInPlay
+            self.ForceSuit= ForceSuit
+            self.ForcedSuit= ForcedSuit
+            self.ForcedSuitStr= ForcedSuitStr
+            self.TurnCount= TurnCount
+            self.RoundCount= RoundCount
+            self.PassCount= PassCount
+            self.MeScore= MeScore
+            self.AdversaryScore= AdversaryScore
+            self.NumCards_FirstHand= NumCards_FirstHand
+    
+    #Create the game
+
+    game= _Game()    
 
     AwaitClick= False
 
@@ -202,39 +214,44 @@ init python:
         del deck_tmp[:]
 
     def ShowCardInPlay():
-        global CardPath
-        CardPath= "img/cards/"+ str(CardInPlay[0])+str(CardInPlay[1])+".png"
+        global game
+        game.CardPath= "img/cards/"+ str(game.CardInPlay[0])+str(game.CardInPlay[1])+".png"
         renpy.transition(moveintop)
-        renpy.show('card_img', at_list=[Transform(zoom=0.3, xpos=0.7, ypos=0.05)], layer="game")
+        renpy.show('card_img', at_list=[Transform(zoom=0.3, xpos=0.2, ypos=0.05)], layer="game")
+        renpy.play(effect.card)
         renpy.pause(1.5)
 
     def PlayCard(whatdeck, item, itemindex):
-        global CardInPlay
-        global ForceSuit
-        CardInPlay= item
+        global game
+        game.CardInPlay= item
+        game.DiscardedDeck.append(item) #Put the car in the list of discarded cards
         whatdeck.pop(itemindex)
-        if ForceSuit== True:
-            ForceSuit== False        
+        if game.ForceSuit== True:
+            game.ForceSuit== False        
         ResetPassCount()
         ShowCardInPlay()
 
+    def NoSuitableCard(type):
+        global game
+        renpy.play(effect.squoink)
+        if type==0:
+            msg= "No es la carta adecuada.\nDebe de ser un "+str(game.CardInPlay[2])+" o el palo "+str(game.CardInPlay[3])
+        else:
+            msg= "No es la carta adecuada.\nDebe de ser del palo "+str(game.ForcedSuitStr)
+        renpy.show_screen('comment', msg, 2)    
+        return False
+
     def play_a_card(itemindex, item):
-        global CardInPlay
-        global CardPath
-        global ForceSuit
-        global ForcedSuit
-        global ForcedSuitStr
-        if (ForceSuit== True) and (CardInPlay[0]=="A"):
-            if (item[0]== "A") or (item[1]== ForcedSuit):
+        global game
+        if (game.ForceSuit== True) and (game.CardInPlay[0]=="8"):
+            if (item[0]== "8") or (item[1]== game.ForcedSuit):
                 PlayableCard= True
             else:
-                renpy.show_screen('comment', "No es la carta adecuada.\nDebe de ser del palo "+str(ForcedSuitStr))
-                PlayableCard= False
-        elif (item[0]== "A") or (item[0]== CardInPlay[0]) or (item[1]==CardInPlay[1]):
+                PlayableCard= NoSuitableCard(1)
+        elif (item[0]== "8") or (item[0]== game.CardInPlay[0]) or (item[1]==game.CardInPlay[1]):
                 PlayableCard= True
         else:
-                renpy.show_screen('comment', "No es la carta adecuada.\nDebe de ser un "+str(CardInPlay[2])+" o el palo "+str(CardInPlay[3]))
-                PlayableCard= False
+                PlayableCard= NoSuitableCard(0)
         if (PlayableCard== True):
             PlayCard(me.deck, item, itemindex)
             return True
@@ -243,9 +260,9 @@ init python:
 
     #Create a new brand deck to start playing cards
     def newdeck():
-        global deck
+        global game
         deck_definition()  
-        del deck[:]
+        del game.deck[:]
         deck_tmp= deck_definition()
         for val,suit in deck_tmp:
             if val== "J":
@@ -259,6 +276,9 @@ init python:
                 value= 13
             elif val== "A":
                 val_lang= "As"
+                value= 1
+            elif val== "8":
+                val_lang= "8"
                 value= 50
             else:
                 val_lang= val
@@ -279,9 +299,10 @@ init python:
                 suit_lang= "Diamantes"
                 suit_color= "ff0000"
                 suit_icon= "♦"
-            deck.append(tuple([val, suit, val_lang, suit_lang, suit_color, suit_icon, value]))
+            game.deck.append(tuple([val, suit, val_lang, suit_lang, suit_color, suit_icon, value]))
+            game.WholeDeck= game.deck
         import random
-        random.shuffle(deck)
+        random.shuffle(game.deck)
         del deck_tmp[:]
 
     def GetRandomNum(whatdeck):
@@ -290,56 +311,61 @@ init python:
 
     def firsthand_create():
         import random
-        global firsthand_numcards
+        global game
         global me
         newdeck()
         del me.deck[:]
         del me.adversary.deck[:]
-        for x in range(0, firsthand_numcards):
-            RandomCard= deck.pop(GetRandomNum(deck))   
+        for x in range(0, game.NumCards_FirstHand):
+            RandomCard= game.deck.pop(GetRandomNum(game.deck))   
             me.deck.append(RandomCard)
-        for x in range(0, firsthand_numcards):
-            RandomCard= deck.pop(GetRandomNum(deck))   
+        for x in range(0, game.NumCards_FirstHand):
+            RandomCard= game.deck.pop(GetRandomNum(game.deck))   
             me.adversary.deck.append(RandomCard)
 
     def draw_a_card(Character):
-        global deck
+        global game
         import random
-        RandomCard= deck.pop(GetRandomNum(deck))   
+        RandomCard= game.deck.pop(GetRandomNum(game.deck))   
         Character.deck.append(RandomCard)
-        if len(deck)==0:
+        if len(game.deck)==0:
             renpy.transition(dissolve)
             renpy.hide('deck_img', layer="game")
         return RandomCard
 
-    def CheckIsAce(item):
-        global ForceSuit
-        global ForcedSuit
-        global ForcedSuitStr
-        if item[0]== "A":
-            ForceSuit= True
+    def CheckIsEight(item):
+        global game
+        if item[0]== "8":
+            game.ForceSuit= True
             renpy.show_screen('comment', "¿Qué palo se debe jugar?", 1)  
             shift= menu([('Forzar ♠Picas', 'pikes'), ('Forzar ♣Tréboles', 'clubs'), ('Forzar ♥Corazones', 'hearts'), ('Forzar ♦Diamantes', 'diamonds')])
             if shift=="pikes":
-                ForcedSuit= "P"
+                game.ForcedSuit= "P"
             elif shift=="clubs":
-                ForcedSuit= "C"
+                game.ForcedSuit= "C"
             elif shift=="hearts":
-                ForcedSuit= "H"
+                game.ForcedSuit= "H"
             else:
-                ForcedSuit= "D"
+                game.ForcedSuit= "D"
+
+    def CheckIfForceSuit():
+        global game
+        if game.ForceSuit== True: #Important: If pass the turn, and the ForceSuit is enabled then the ForceSuit is disabled
+            renpy.show_screen('comment', "Al pasar, el forzado a palo "+str(game.ForcedSuitStr)+" ya no tiene efecto.", 2)
+            game.ForceSuit= False   
 
     #PassCount functions->
 
     def PassTurn():
-        global PassCount
-        PassCount+= 1
+        global game
+        game.PassCount+= 1
 
     def ResetPassCount():
-        global PassCount
-        PassCount= 0
+        global game
+        game.PassCount= 0
 
     def calculate_score(Character):
+        global me
         score= 0
         for item in Character.deck:
             score= score + item[6]
@@ -370,208 +396,275 @@ init python:
 
     def game_start(Charact, YouWinMsg, YouLoseMsg):
         global me
-        global CardPath
-        global CardInPlay
-        global ForceSuit
-        global ForcedSuit
-        global ForcedSuitStr
-        global PassCount
-        global firsthand_numcards
+        global game
         renpy.block_rollback()
         me.adversary= Charact
-        firsthand_create()
-        import random
-        me_turn= bool(random.getrandbits(1))
-        first_turn= True
         cards_to_play= []
-        TurnCount=0
-        while (True): #----------------PLAY TIL GAME ENDS------------------
-            TurnCount+= 1
-            if PassCount>=4: #Multiple passes do not allowed
-                break 
+        best_cards_to_play=[]
+        even_more_best_cards_to_play=[]
+        game.MeScore= 0
+        game.AdversaryScore= 0
+        game.RoundCount= 0
+        MeWonRounds= 0
+        AdversaryWonRounds= 0
+        while (game.MeScore<100) and (game.AdversaryScore<100):
+            firsthand_create()
+            import random
+            me_turn= bool(random.getrandbits(1))
+            first_turn= True
+            game.RoundCount+= 1
+            game.TurnCount=0
             renpy.show_screen("game_data")
-            if first_turn== True:
-                renpy.transition(dissolve)
-                renpy.show('deck_img', at_list=[Transform(zoom=0.3, xpos=0.2, ypos=0.05)], layer="game")
-            #---------- MY TURN ----------------------
-            if me_turn: #---------- MY FIRST TURN ----------------------
-                if first_turn: 
-                    renpy.show_screen('comment', "Empiezas tú", 2)    
-                    while True:
-                        itemindex, item= renpy.call_screen('my_hand', True)
-                        renpy.show_screen('my_hand', False)
-                        PlayCard(me.deck, item, itemindex)
-                        CheckIsAce(item)
-                        first_turn= False
-                        me_turn= False
-                        break     
-                else: #---------- MY TURN ----------------------
-                    renpy.show_screen('comment', "Es tu turno", 1)        
-                    #Show your cards
-                    while True:
-                        result= renpy.show_screen('my_hand', False)
-                        if len(deck)>0:
-                            shift= menu([('Coger una carta del mazo', 'draw'), ('Jugar una de tus cartas', 'play')])
-                        else:
-                            shift= menu([('Pasar', 'pass'), ('Jugar', 'play')])
-                        if (shift=='draw'):
-                            DrawedCard= draw_a_card(me)
-                            renpy.show_screen('comment', "Has obtenido la carta "+ str(DrawedCard[2])+" de "+str(DrawedCard[3]), 2)
-                            me_turn= True
-                        elif (shift=='play'):
-                            renpy.show_screen('comment', "Escoge una carta.", 1)  
+            while (True): #----------------PLAY TIL ROUND ENDS------------------
+                game.TurnCount+= 1
+                if game.PassCount>=4: #Multiple passes do not allowed, CANNOT BE POSSIBLE, THIS ONLY CAN OCCUR IF THE ALGORIMTH BELOW FAILS, it's a prevention messure to avoid an eternal loop in the game of players ever passing
+                    ResetPassCount() #PassCount= 0 | Important for avoid an eternal loop when a round ends at this point
+                    break 
+                renpy.show_screen("adversary_data")
+                if first_turn== True:
+                    #Show the deck (the BACK card)
+                    renpy.transition(dissolve)
+                    renpy.show('deck_img', at_list=[Transform(zoom=0.3, xpos=0.72, ypos=0.25)], layer="game")
+                #---------- MY TURN ----------------------
+                if me_turn: #---------- MY FIRST TURN ----------------------
+                    if first_turn: 
+                        renpy.show_screen('comment', "Empiezas tú", 2)    
+                        while True:
+                            #Show your first hand
                             itemindex, item= renpy.call_screen('my_hand', True)
-                            renpy.show_screen('my_hand', False) #<-Important if you don't want my hand screen dissapears after the interaction
-                            if (play_a_card(itemindex, item)== True):
-                                CheckIsAce(item)
+                            renpy.show_screen('my_hand', False)
+                            #Play a card
+                            PlayCard(me.deck, item, itemindex)
+                            #Check if your card is an eight
+                            CheckIsEight(item)
+                            #Change the turn of the game
+                            first_turn= False
+                            me_turn= False
+                            break     
+                    else: #---------- MY TURN ----------------------
+                        renpy.show_screen('comment', "Es tu turno", 1)        
+                        #Show your cards
+                        while True: #Loop til I got playable cards (til break with the 'break' stament)
+                            #Show your hand
+                            result= renpy.show_screen('my_hand', False)
+                            #Choose some options to play
+                            if len(game.deck)>0: #You cannot pass if there are cards in the deck
+                                shift= menu([('Coger una carta del mazo', 'draw'), ('Jugar una de tus cartas', 'play')])
+                            else:
+                                shift= menu([('Pasar', 'pass'), ('Jugar', 'play')])
+                            #The results of your choices
+                            #DRAW A CARD FROM THE DECK
+                            if (shift=='draw'):
+                                DrawedCard= draw_a_card(me)
+                                renpy.show_screen('comment', "Has obtenido la carta "+ str(DrawedCard[2])+" de "+str(DrawedCard[3]), 2)
+                                me_turn= True
+                            #PLAY A A CARD
+                            elif (shift=='play'):
+                                renpy.show_screen('comment', "Escoge una carta.", 1)  
+                                #SELECT A CARD FROM YOUR HAND
+                                itemindex, item= renpy.call_screen('my_hand', True)
+                                renpy.show_screen('my_hand', False) #<-Important if you don't want my hand screen dissapears after the interaction
+                                #CHECK IF YOU CAN PLAY THE ELIGIBLE CARD
+                                if (play_a_card(itemindex, item)== True):
+                                    #IF AN Eight YOU SHOULD CHOICE THE SUIT TO PLAY
+                                    CheckIsEight(item)
+                                    #PASS YOUR TURN
+                                    me_turn= False
+                                    break
+                            #PASS YOUR TURN
+                            elif (shift=='pass'):                            
+                                PassTurn() #<-Inc the PassCount
+                                CheckIfForceSuit()     
                                 me_turn= False
                                 break
-                        elif (shift=='pass'):
-                            PassTurn()
-                            if ForceSuit== True: #Important: If pass the turn, and the ForceSuit is enabled then the ForceSuit is disabled
-                                renpy.show_screen('comment', "Al pasar, el forzado a palo "+ForcedSuitStr+" ya no tiene efecto.", 2)
-                                ForceSuit= False      
-                            me_turn= False
+                        #End of the While loop
+                        if len(me.deck)==0: #I HAVE NOT CARDS = LAST TURN FOR ME = I WIN!
                             break
-                    if len(me.deck)==0: #I HAVE NOT CARDS = LAST TURN FOR ME = I WIN!
-                        break
-                    #_window_hide()
-            else:
-                #--------TURN OF THE ADVERSARY---------
-                if first_turn:
-                    #-------IF ADVERSARY'S FIRST TURN
-                    renpy.show_screen('my_hand', False)
-                    RandomNumber= GetRandomNum(me.adversary.deck)
-                    PlayCard(me.adversary.deck, me.adversary.deck[RandomNumber], RandomNumber)
-                    PlayableCard= True
-                    first_turn= False
-                else: #--------TURN OF THE ADVERSARY---------
-                    #Calculate what card the adversary will play
-                    #First what cards in this hand match with the Card in Play
-                    drawed_cards= 0
-                    has_a_ace= False
-                    while True:      
-                        del cards_to_play[:]
-                        #pcards_to_play is a list of an integer and a tuple: [index,(val,suit)]
-                        for itemindex, item in enumerate(me.adversary.deck):
-                            if (CardInPlay[0]== "A") and (ForceSuit== True): #If the playing card is an ACE
-                                if (item[1]=="A") or (item[1]==ForcedSuit): #If Ace or match the forced suit
-                                    cards_to_play.append((itemindex, item)) #append in cards_to_play list, a tuple of (itemindex, index)
-                                    if item[0]=="A": #mark that the adversary has a Ace
-                                        has_a_ace= True
-                            else: #For common cards ->
-                                if (item[0]=="A") or ((item[0]==CardInPlay[0]) or (item[1]==CardInPlay[1])): #If Ace or match val or suit
-                                    cards_to_play.append((itemindex, item))
-                                    if item[0]=="A": #mark that the adversary has a Ace
-                                        has_a_ace= True
-                        if (len(cards_to_play)>0) or (len(deck)==0):
-                            break
-                        else:
-                            draw_a_card(me.adversary)
-                            drawed_cards+= drawed_cards
-                    if (len(cards_to_play)>0):
-                        if (drawed_cards>0):
-                            renpy.show_screen('comment', me.adversary.name +" ha cogido "+ str(drawed_cards)+" cartas del mazo.")      
-                        #HERE THE ADVERSARY AI ACCORDING HIS GAME LEVEL
-                        if me.adversary.gamelevel>1:             
-                            if (has_a_ace== True) and (len(cards_to_play)==1):  #If the adversary has an Ace as his unique playable card then the adversary has 100% of possibility to play this 
-                                play_the_ace= True
-                            elif (has_a_ace== True):  #If the adversary has an Ace of the same suit then the adversary has 50% of possibility to play this 
-                                play_the_ace= bool(random.getrandbits(1))
-                            else:
-                                play_the_ace= False
-                            if play_the_ace== False:
-                                #In this level check the frequency of suits in his hand         
-                                dictionaryofsuits= CalcFrequencyOfSuits(me.adversary.deck, None)
-                                import operator
-                                #Order the dictionary suits by its frequency in a decreasing order
-                                sorted_suit_frequencies= sorted(dictionaryofsuits.items(), key=operator.itemgetter(1), reverse= True)
-                                #Now get the first card with the suit of max frequency from the playable cards
-                                for item in cards_to_play:
-                                    for suit in sorted_suit_frequencies: #iterate all the max frequency suits
-                                        if item[1][1]==  str(suit[0]): #get the first ocurrence
-                                            PlayCard(me.adversary.deck, item[1], item[0])
-                                            break #not seach for other suitable card      
-                                    else:
-                                        continue  # executed if the loop ended normally (no break)
-                                    break  # executed if 'continue' was skipped (break)        
-                            else: #if play the ace
-                                for item in cards_to_play: #Search the ace to play
-                                    if item[1][0]==  "A":                    
-                                        PlayCard(me.adversary.deck, item[1], item[0])
-                                        break #not more search for the Ace
-                        else: #if the player level is =1 then choose a random card
-                            RandomNumber= random.randint(0,len(cards_to_play)-1)
-                            PlayCard(me.adversary.deck, cards_to_play[RandomNumber][1], cards_to_play[RandomNumber][0])      
-                        PlayableCard= True
-                    else: 
-                        PlayableCard= False
-                #--------------- DRAW A PLAYABLE CARD -------------
-                if (PlayableCard== True) and (len(me.adversary.deck)>0):
-                    if CardInPlay[0]=="A": #IF CARD-IN-PLAY IS A ACE
-                        ForceSuit= True
-                        if me.adversary.gamelevel>1: #If adversary level is expert or master
-                            #Analyze what is the suitable suit to switch
-                            dictionaryofsuits= CalcFrequencyOfSuits(me.adversary.deck, CardInPlay)
-                            #Get the suit of max. frequency ->                           
-                            ForcedSuit= max(dictionaryofsuits, key=dictionaryofsuits.get)
-                            #Otra opción a la anterior sentencia: ForcedSuit= max(dictionaryofsuits, key=lambda key: dictionaryofsuits[key])
-                            #renpy.show_screen('comment', ForcedSuit, 20) DEBUG
-                        else: #if adversary has a game level of 1
-                            #Force Random Suit
-                            ForcedSuit= random.choice("PCHD")
-                        #Set the ForcedSuit
-                        if ForcedSuit== "P":
-                            ForcedSuitStr= "Picas"
-                        elif ForcedSuit== "C":
-                            ForcedSuitStr= "Tréboles"
-                        elif ForcedSuit== "H":
-                            ForcedSuitStr= "Corazones"
-                        else:
-                            ForcedSuitStr= "Diamantes"
-                        ResetPassCount()
-                        renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\nTe obligo a que eches un palo "+ForcedSuitStr+".")
-                    else: #IF CARD-IN-PLAY IS A REGULAR CARD (NOT A ACE)
-                        if (me.gamecount<4):
-                            renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\nEcha una carta del mismo palo o número.")
-                #------IF ADVERSARY HAS NOT A PLAYABLE CARD ---------
+                        #_window_hide()
                 else:
-                    if (len(me.adversary.deck)>0):
-                        PassTurn()
-                        renpy.say(me.adversary.charobj, "Paso el turno.")
-                        if ForceSuit== True: #Important: If pass the turn, and the ForceSuit is enabled then the ForceSuit is disabled
-                            renpy.show_screen('comment', "Al pasar, el forzado a palo "+ForcedSuitStr+" ya no tiene efecto.", 2)
-                            ForceSuit= False      
-                    else:                        
-                        renpy.say(me.adversary.charobj, "Mi última carta es {color=#"+str(CardInPlay[4])+"}"+str(CardInPlay[2])+" de "+str(CardInPlay[5])+str(CardInPlay[3])+"{/color}.\n¡Ya no me quedan más!")
-                        break
-                #------ ADVERSARY END OF TURN ------------------
-                renpy.block_rollback()
-                me_turn= True
-        #-------------END OF while (True) = GAME ENDS
+                    #--------TURN OF THE ADVERSARY---------
+                    if first_turn:
+                        #-------IF ADVERSARY'S FIRST TURN
+                        renpy.show_screen('my_hand', False)
+                        RandomNumber= GetRandomNum(me.adversary.deck)
+                        PlayCard(me.adversary.deck, me.adversary.deck[RandomNumber], RandomNumber)
+                        PlayableCard= True
+                        first_turn= False
+                    else: #--------TURN OF THE ADVERSARY---------
+                        #Calculate what card the adversary will play
+                        #First what cards in this hand match with the Card in Play
+                        drawed_cards= 0
+                        has_a_eight= False
+                        while True:      
+                            del cards_to_play[:]
+                            del best_cards_to_play[:]
+                            #pcards_to_play is a list of an integer and a tuple: [index,(val,suit)]
+                            for itemindex, item in enumerate(me.adversary.deck):
+                                if (game.CardInPlay[0]== "8") and (game.ForceSuit== True): #If the playing card is an Eight
+                                    if (item[0]=="8") or (item[1]==game.ForcedSuit): #If Eight or match the forced suit
+                                        cards_to_play.append((itemindex, item)) #append in cards_to_play list, a tuple of (itemindex, item)
+                                        if item[0]=="8": #mark that the adversary has a Eight at least
+                                            has_a_eight= True
+                                else: #IF THE PLAYIND CARD IS A COMMON CARD ->
+                                    if (item[0]=="8") or ((item[0]==game.CardInPlay[0]) or (item[1]==game.CardInPlay[1])): #If Eight or match val or suit
+                                        cards_to_play.append((itemindex, item))
+                                        if item[0]=="8": #mark that the adversary has a Eight at least
+                                            has_a_eight= True
+                            #IF HE HAVE SOME CARD TO PLAY OR THERE ARE NO CARDS IN THE DECK
+                            if (len(cards_to_play)>0) or (len(game.deck)==0):
+                                break #EXIT LOOP
+                            else: #IF HE DON'T HAVE ANY CARD TO PLAY THEN DRAW A CARD FROM THE DECK
+                                draw_a_card(me.adversary)
+                                drawed_cards+= drawed_cards
+                        if (len(cards_to_play)>0):
+                            if (drawed_cards>0):
+                                renpy.show_screen('comment', me.adversary.name +" ha cogido "+ str(drawed_cards)+" cartas del mazo.")      
+                            #HERE THE ADVERSARY AI ACCORDING HIS GAME LEVEL
+                            if (me.adversary.gamelevel>1):   #STUDY SOME POSSIBILITIES          
+                                #FIRSTLY STUDY THE POSSIBILITY OF PLAY AN Eight
+                                if (has_a_eight== True):
+                                    if (len(cards_to_play)==1):  #If the adversary has an Eight as his unique playable card then the adversary has 100% of possibility to play this 
+                                        play_the_eight= True
+                                    else:  #If the adversary has an Eight and other playable cards then the adversary has 50% of possibility to play the Eight
+                                        play_the_eight= bool(random.getrandbits(1))
+                                else: #if the adversary has not an Eight
+                                    play_the_eight= False
+                                #IF NOT AN Eight, PLAY A COMMON CARD
+                                if play_the_eight== False:                                       
+                                    dictionaryofsuits= CalcFrequencyOfSuits(me.adversary.deck, None) #In this level check the frequency of suits in his hand  
+                                    import operator
+                                    #Order the dictionary suits by its frequency in a decreasing order
+                                    sorted_suit_frequencies= sorted(dictionaryofsuits.items(), key=operator.itemgetter(1), reverse= True)
+                                    #Created an ordered list with the cards to play according its suit->
+                                    #x= ""
+                                    #for suit in sorted_suit_frequencies:
+                                        #x=x+","+suit[0]
+                                    #renpy.show_screen('comment3', x, 20)   
+                                    #x= ""
+                                    for suit in sorted_suit_frequencies:
+                                        for item in cards_to_play:                                    
+                                            if item[1][1]==  str(suit[0]):
+                                                best_cards_to_play.append(item) 
+                                                #x= x+", "+str(item[1][0])+str(item[1][1])
+                                    #renpy.show_screen('comment', x, 20)   
+                                    if me.adversary.gamelevel==1: #DEBUG, PUT A VALUE OF 2 WHEN DEBUG IS FINISHED
+                                        #Now get the first card with the suit of max frequency from the best playable cards
+                                        #Get the fist element and its index to play                                                                                                       
+                                        PlayCard(me.adversary.deck, best_cards_to_play[0][1], best_cards_to_play[0][0])
+                                    else: #if opponent has a level of master, he should play the card of high value (important in case of tie or he loss)
+                                        #So first I select all the cards of the suit of max frequency
+                                        BetterSuit= best_cards_to_play[0][1][1] #The suit of the first card of the list
+                                        renpy.watch(BetterSuit)  #DEBUG
+                                        #x=""
+                                        for item in best_cards_to_play: #get all the cards of this suit
+                                            if item[1][1]== str(BetterSuit):
+                                                even_more_best_cards_to_play.append(item)
+                                                #x= x+", "+str(item[1][0])+str(item[1][1])
+                                            else:
+                                                break #No more cards of the better suit
+                                        #renpy.show_screen('comment2', x, 20) 
+                                        #And finally get the card with the highest value and play it
+                                        import operator                                    
+                                        BetterCard= max(even_more_best_cards_to_play, key=operator.itemgetter(1))
+                                        PlayCard(me.adversary.deck, BetterCard[1], BetterCard[0])     
+                                        del even_more_best_cards_to_play[:]                               
+                                    #else:    
+                                        #IF GAME.DECK= 0 THE ADVERSARY COULD TO KNOW WHAT CARDS YOU HAVE    
+                                        #if len(game.deck==0): 
+                                            #for item_adversary in best_cards_to_play:
+                                                #for item_me in me.deck
+                                                    #if (item_adversary[1][0]!= item_me[0]) and (item_adversary[1][1]!= item_me[1]): #If matche sin val or suit, discard it
+                                                    #best_cards_to_play_2.append(item_adversary)
+                                                    #break
+                                else: #if play the Eight
+                                    for item in cards_to_play: #Search the first Eight to play (don't care what suit because you can change it)
+                                        if (item[1][0]==  "8"):                    
+                                            PlayCard(me.adversary.deck, item[1], item[0])
+                                            break #not more search for the Eight
+                            else: #if the player level is =1 then choose a random card and do not care anything
+                                RandomNumber= random.randint(0,len(cards_to_play)-1)
+                                PlayCard(me.adversary.deck, cards_to_play[RandomNumber][1], cards_to_play[RandomNumber][0])      
+                            PlayableCard= True #HE CAN PLAY THE CARD
+                        else: 
+                            PlayableCard= False #HE CANNOT PLAY ANY CARD
+                    #--------------- DRAW A PLAYABLE CARD -------------
+                    if (PlayableCard== True) and (len(me.adversary.deck)>0):
+                        if game.CardInPlay[0]=="8": #IF CARD-IN-PLAY IS A Eight
+                            game.ForceSuit= True
+                            #If adversary level is expert or master->
+                            if (me.adversary.gamelevel>1):
+                                #Analyze what is the suitable suit to switch
+                                dictionaryofsuits= CalcFrequencyOfSuits(me.adversary.deck, game.CardInPlay)
+                                #Get the suit of max. frequency ->                           
+                                game.ForcedSuit= max(dictionaryofsuits, key=dictionaryofsuits.get)
+                                #Otra opción a la anterior sentencia: game.ForcedSuit= max(dictionaryofsuits, key=lambda key: dictionaryofsuits[key])
+                                #renpy.show_screen('comment', game.ForcedSuit, 20) DEBUG
+                            else: #if adversary has a game level of 1
+                                #Force a random Suit
+                                game.ForcedSuit= random.choice("PCHD")
+                            #Set the ForcedSuit
+                            if game.ForcedSuit== "P":
+                                game.ForcedSuitStr= "Picas"
+                            elif game.ForcedSuit== "C":
+                                game.ForcedSuitStr= "Tréboles"
+                            elif game.ForcedSuit== "H":
+                                game.ForcedSuitStr= "Corazones"
+                            else:
+                                game.ForcedSuitStr= "Diamantes"
+                            ResetPassCount() #PassCount= 0
+                            renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(game.CardInPlay[4])+"}"+str(game.CardInPlay[2])+" de "+str(game.CardInPlay[5])+str(game.CardInPlay[3])+"{/color}.\nTe obligo a que eches un palo "+game.ForcedSuitStr+".")
+                        else: #IF CARD-IN-PLAY IS A REGULAR CARD (NOT AN Eight)
+                            if (me.gamecount<4):
+                                renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(game.CardInPlay[4])+"}"+str(game.CardInPlay[2])+" de "+str(game.CardInPlay[5])+str(game.CardInPlay[3])+"{/color}.\nEcha una carta del mismo palo o número.")
+                    #------IF ADVERSARY HAS NOT A PLAYABLE CARD ---------
+                    else:
+                        if (len(me.adversary.deck)>0):
+                            PassTurn() #<-Inc the PassCount
+                            renpy.say(me.adversary.charobj, "Paso el turno.")
+                            CheckIfForceSuit()   
+                        else:                        
+                            renpy.say(me.adversary.charobj, "Mi última carta es {color=#"+str(game.CardInPlay[4])+"}"+str(game.CardInPlay[2])+" de "+str(game.CardInPlay[5])+str(game.CardInPlay[3])+"{/color}.\n¡Ya no me quedan más!")
+                            break
+                    #------ ADVERSARY END OF TURN ------------------
+                    renpy.block_rollback()
+                    me_turn= True
+            #-------------END OF while (True) = ROUND ENDS
+            renpy.hide('card_img', layer="game")
+            renpy.hide('deck_img', layer="game")
+            renpy.hide_screen("adversary_data")                        
+            renpy.hide_screen("my_hand")
+            if len(me.deck)==0:    
+                #Calculate the score
+                won_score= calculate_score(me.adversary)
+                game.MeScore+= won_score
+                MeWonRounds+= MeWonRounds
+                renpy.show_screen('comment', "¡¡¡HAS GANADO ESTA RONDA y "+str(won_score)+" puntos!!!")  
+                renpy.say(me.adversary.charobj, YouWinMsg)
+            elif len(me.adversary.deck)==0:
+                game.AdversaryScore+= calculate_score(me)
+                AdversaryWonRounds+= AdversaryWonRounds
+                renpy.show_screen('comment', "¡¡¡HAS PERDIDO ESTA RONDA!!!") 
+                renpy.say(me.adversary.charobj, YouLoseMsg)
+            else:                
+                _mescore= calculate_score(me)
+                _adversaryscore= calculate_score(me.adversary)
+                #If tie occurs, the lowest score wins this round
+                if (_mescore<_adversaryscore): #You win!
+                    #The puntuation is the difference between the high and low score
+                    game.MeScore+= _adversaryscore - _mescore
+                    MeWonRounds+= MeWonRounds
+                    renpy.show_screen('comment', "¡¡¡HAS GANADO ESTA RONDA y "+str(won_score)+" puntos!!!")  
+                    renpy.say(me.adversary.charobj, YouWinMsg)
+                elif (_mescore>_adversaryscore):
+                    game.AdversaryScore+= _mescore - _adversaryscore
+                    renpy.show_screen('comment', "¡¡¡HAS PERDIDO ESTA RONDA!!!") 
+                    renpy.say(me.adversary.charobj, YouLoseMsg)
+                else:
+                    renpy.show_screen('comment', "Habéis empatado.") 
+            renpy.pause(2.0)
+        #-------------END OF GAME ()
         renpy.hide('card_img', layer="game")
         renpy.hide('deck_img', layer="game")
-        renpy.hide_screen("game_data")
+        renpy.hide_screen("game_data")                        
+        renpy.hide_screen("adversary_data")                        
         renpy.hide_screen("my_hand")
-        if len(me.deck)==0:    
-            #Calculate the score
-            won_score= calculate_score(me.adversary)
-            me.score+= won_score
-            me.victorycount+= 1
-            me.adversary.downcount+= 1
-            me.adversary.gamecount+= 1
-            renpy.show_screen('comment', "¡¡¡HAS GANADO "+str(won_score)+" puntos!!!")  
-            renpy.say(me.adversary.charobj, YouWinMsg)
-            return 1
-        elif len(me.adversary.deck)==0:
-            renpy.show_screen('comment', "¡¡¡HAS PERDIDO!!!") 
-            me.adversary.score+= calculate_score(me)
-            me.adversary.victorycount+= 1
-            me.downcount+= 1
-            me.gamecount+= 1
-            renpy.say(me.adversary.charobj, YouLoseMsg)
-            return 2
-        else:
-            renpy.show_screen('comment', "Habéis empatado.") 
-            return 3
-        renpy.pause(2.0, hard=True)

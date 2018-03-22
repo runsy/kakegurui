@@ -1,4 +1,4 @@
-screen game_data():
+screen adversary_data():
     layer "game"
     frame xalign 0.5 ypos 0.1:
         python:
@@ -7,13 +7,32 @@ screen game_data():
             else:
                 pronoun= "Ella"
             _adversary_cards= pronoun+" tiene "+str(len(me.adversary.deck))+" cartas."
-            _cards=""
-            for item2 in me.adversary.deck:
-                _cards= _cards+str(item2[0])+str(item2[1])+", "
+            #_cards=""
+            #for item2 in me.adversary.deck:
+                #_cards= _cards+str(item2[0])+str(item2[1])+", "
         background RoundRect("#00ae426f")  
         hbox:
             label _adversary_cards
-            label _cards
+            #label _cards
+
+screen game_data():
+    layer "game"
+    frame xalign 0.85 ypos 0.05:
+        python:
+            _roundcount= "Ronda= "+ str(game.RoundCount)
+            _turncount= "Turno= "+ str(game.TurnCount)
+            _mescore= "Mis puntos= "+str(game.MeScore)
+            _adversaryscore= "Puntos de "+me.adversary.name+"= "+str(game.AdversaryScore)
+        background RoundRect("#00ae426f")  
+        vbox:
+            hbox:
+                label _roundcount
+            hbox:
+                label _turncount
+            hbox:
+                label _mescore
+            hbox:
+                label _adversaryscore
 
 screen my_hand(clickable):
         layer "game"
@@ -51,8 +70,8 @@ screen my_hand(clickable):
 #Cards
 #--------
 #IMAGE ACTUALLY IN PLAY
-#image card_img= At("[CardPath]", card_in_play_transform)
-image card_img= "[CardPath]"
+#image card_img= At("[game.CardPath]", card_in_play_transform)
+image card_img= "[game.CardPath]"
 
 #RESTING DECK (BACK)
 image deck_img= "img/cards/BACK.png"

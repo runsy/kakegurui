@@ -20,6 +20,25 @@ screen comment(comment_text, time= 3):
   hbox:
    timer time repeat False action [Hide('comment')]
    text "{size=-3}{color=ffffff}[comment_text]{/color}{/size}" 
+
+screen comment2(comment_text, time= 3):
+ frame:
+  at show_hide_dissolve
+  xcenter 0.2
+  background RoundRect("#ae426f")
+  hbox:
+   timer time repeat False action [Hide('comment')]
+   text "{size=-3}{color=ffffff}[comment_text]{/color}{/size}" 
+
+screen comment3(comment_text, time= 3):
+ frame:
+  at show_hide_dissolve
+  xcenter 0.8
+  ycenter 0.5
+  background RoundRect("#ae426f")
+  hbox:
+   timer time repeat False action [Hide('comment')]
+   text "{size=-3}{color=ffffff}[comment_text]{/color}{/size}"
 #-----------------------------------
 screen today:
  vbox xalign 1.0:
