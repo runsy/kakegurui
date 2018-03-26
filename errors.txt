@@ -2,8 +2,8 @@
 errors listed below, and try again.
 
 
-File "game/game_screens.rpy", line 25: end of line expected.
-    hbox: label _roundcount
-          ^
+File "game/init_python.rpy", line 12: invalid syntax
+        elif type == "hand32"
+    
 
 Ren'Py Version: Ren'Py 6.99.12.2.2029

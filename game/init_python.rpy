@@ -4,6 +4,22 @@ init python:
     reload(sys)
     sys.setdefaultencoding("utf-8")
 
+#Procedures
+    def change_cursor(type="default"):
+        persistent.mouse = type
+        if type == "default":
+            setattr(config, "mouse", None)
+        elif type == "hand32":
+            setattr(config, "mouse", {"default": [("img/cursors/hand32.png", 0, 0)]})
+        elif type == "hand64":
+            setattr(config, "mouse", {"default": [("img/cursors/hand64.png", 0, 0)]})            
+    if not hasattr(persistent, "mouse"):
+        change_cursor()
+    else:
+        change_cursor(persistent.mouse)
+
+    change_cursor("hand32")
+
 #--------------------------------------------
 #Define the player's choices that affect the story
     class Choice:
@@ -153,6 +169,8 @@ init python:
                 max_random= 15
             import random
             amount= random.randint(min_random, max_random)
+            if inc==False:
+                amount= -amount
             self.love+= amount
             if self.love<0:
                 self.love=0
@@ -161,9 +179,10 @@ init python:
 #--------------------------------------------    
 #Create the instances of the characters:
     #Create the chars
-    me= Charact(name= "Maru", charobj=ma, genre= Genre.Female, money=100.0)
-    violeta= Charact(name="Violeta", charobj=vi, genre= Genre.Female, money=100.0, affinity=90, love=0,  isknown= True, isfriend= True, gamelevel=2)
+    me= Charact(name= "Maru", charobj=ma, genre= Genre.Female, money=100.0, gamecount=1)
+    violeta= Charact(name="Violeta", charobj=vi, genre= Genre.Female, money=100.0, affinity=90, love=0,  isknown= True, isfriend= True, gamelevel=1)
     nacho= Charact(name="Nacho", charobj=na, genre= Genre.Male, money=100.0, affinity=75, love=5,  isknown= True, isfriend= True, gamelevel=1)
+    paolo= Charact(name="Paolo", charobj=pa, genre= Genre.Male, money=2000.0, affinity=85, love=60,  isknown= False, isfriend= False, gamelevel=2)
     #Append the friends
     me.friendslist.append(nacho)
     me.friendslist.append(violeta)
@@ -227,7 +246,7 @@ init python:
         game.DiscardedDeck.append(item) #Put the car in the list of discarded cards
         whatdeck.pop(itemindex)
         if game.ForceSuit== True:
-            game.ForceSuit== False        
+            game.ForceSuit= False        
         ResetPassCount()
         ShowCardInPlay()
 
@@ -254,6 +273,8 @@ init python:
                 PlayableCard= NoSuitableCard(0)
         if (PlayableCard== True):
             PlayCard(me.deck, item, itemindex)
+            #IF AN Eight YOU SHOULD CHOICE THE SUIT TO PLAY
+            CheckIsEight(item)
             return True
         else:
             return False
@@ -328,10 +349,10 @@ init python:
         import random
         RandomCard= game.deck.pop(GetRandomNum(game.deck))   
         Character.deck.append(RandomCard)
-        if len(game.deck)==0:
-            renpy.transition(dissolve)
-            renpy.hide('deck_img', layer="game")
-        return RandomCard
+        renpy.play(effect.card)
+        if Character== me:
+            renpy.show_screen('comment', "Has obtenido la carta "+ str(RandomCard[2])+" de "+str(RandomCard[3]), 2)        
+        return True
 
     def CheckIsEight(item):
         global game
@@ -341,12 +362,16 @@ init python:
             shift= menu([('Forzar ♠Picas', 'pikes'), ('Forzar ♣Tréboles', 'clubs'), ('Forzar ♥Corazones', 'hearts'), ('Forzar ♦Diamantes', 'diamonds')])
             if shift=="pikes":
                 game.ForcedSuit= "P"
+                game.ForcedSuitStr= "Picas"
             elif shift=="clubs":
                 game.ForcedSuit= "C"
+                game.ForcedSuitStr= "Tréboles"
             elif shift=="hearts":
                 game.ForcedSuit= "H"
+                game.ForcedSuitStr= "Corazones"
             else:
                 game.ForcedSuit= "D"
+                game.ForcedSuitStr= "Diamantes"
 
     def CheckIfForceSuit():
         global game
@@ -356,13 +381,19 @@ init python:
 
     #PassCount functions->
 
-    def PassTurn():
+    def IncPassCount():
         global game
         game.PassCount+= 1
 
     def ResetPassCount():
         global game
         game.PassCount= 0
+
+    #When you pass you turn:
+    def PassYourTurn():
+        IncPassCount() #<-Inc the PassCount
+        CheckIfForceSuit() 
+        return False 
 
     def calculate_score(Character):
         global me
@@ -396,8 +427,10 @@ init python:
 
     def game_start(Charact, YouWinMsg, YouLoseMsg):
         global me
-        global game
-        renpy.block_rollback()
+        global game        
+        renpy.block_rollback() #Block the Back dialogue button
+        CurrentMusic= renpy.music.get_playing() #Save the current music filename
+        renpy.music.play(music.dreaming_in_puzzles, loop=True, fadein=2, fadeout=2)
         me.adversary= Charact
         cards_to_play= []
         best_cards_to_play=[]
@@ -407,11 +440,17 @@ init python:
         game.RoundCount= 0
         MeWonRounds= 0
         AdversaryWonRounds= 0
+        import random
+        #Random turn
+        me_turn= bool(random.getrandbits(1))
+        #Save the previous me_turn value (True or False)
+        previous_me_turn= me_turn
         while (game.MeScore<100) and (game.AdversaryScore<100):
-            firsthand_create()
-            import random
-            me_turn= bool(random.getrandbits(1))
+            firsthand_create()                            
             first_turn= True
+            if game.RoundCount>0: #Switch the turn at each round
+                me_turn= not previous_me_turn
+                previous_me_turn= me_turn            
             game.RoundCount+= 1
             game.TurnCount=0
             renpy.show_screen("game_data")
@@ -420,11 +459,7 @@ init python:
                 if game.PassCount>=4: #Multiple passes do not allowed, CANNOT BE POSSIBLE, THIS ONLY CAN OCCUR IF THE ALGORIMTH BELOW FAILS, it's a prevention messure to avoid an eternal loop in the game of players ever passing
                     ResetPassCount() #PassCount= 0 | Important for avoid an eternal loop when a round ends at this point
                     break 
-                renpy.show_screen("adversary_data")
-                if first_turn== True:
-                    #Show the deck (the BACK card)
-                    renpy.transition(dissolve)
-                    renpy.show('deck_img', at_list=[Transform(zoom=0.3, xpos=0.72, ypos=0.25)], layer="game")
+                renpy.show_screen("adversary_data")                                                    
                 #---------- MY TURN ----------------------
                 if me_turn: #---------- MY FIRST TURN ----------------------
                     if first_turn: 
@@ -434,49 +469,60 @@ init python:
                             itemindex, item= renpy.call_screen('my_hand', True)
                             renpy.show_screen('my_hand', False)
                             #Play a card
-                            PlayCard(me.deck, item, itemindex)
-                            #Check if your card is an eight
-                            CheckIsEight(item)
-                            #Change the turn of the game
-                            first_turn= False
-                            me_turn= False
-                            break     
+                            if item!= None: #If you click on a card not on the deck
+                                PlayCard(me.deck, item, itemindex)
+                                #Check if your card is an eight
+                                CheckIsEight(item)
+                                #Change the turn of the game
+                                first_turn= False
+                                me_turn= False
+                                break     
                     else: #---------- MY TURN ----------------------
                         renpy.show_screen('comment', "Es tu turno", 1)        
                         #Show your cards
                         while True: #Loop til I got playable cards (til break with the 'break' stament)
-                            #Show your hand
-                            result= renpy.show_screen('my_hand', False)
-                            #Choose some options to play
-                            if len(game.deck)>0: #You cannot pass if there are cards in the deck
-                                shift= menu([('Coger una carta del mazo', 'draw'), ('Jugar una de tus cartas', 'play')])
-                            else:
-                                shift= menu([('Pasar', 'pass'), ('Jugar', 'play')])
-                            #The results of your choices
-                            #DRAW A CARD FROM THE DECK
-                            if (shift=='draw'):
-                                DrawedCard= draw_a_card(me)
-                                renpy.show_screen('comment', "Has obtenido la carta "+ str(DrawedCard[2])+" de "+str(DrawedCard[3]), 2)
-                                me_turn= True
-                            #PLAY A A CARD
-                            elif (shift=='play'):
-                                renpy.show_screen('comment', "Escoge una carta.", 1)  
-                                #SELECT A CARD FROM YOUR HAND
-                                itemindex, item= renpy.call_screen('my_hand', True)
-                                renpy.show_screen('my_hand', False) #<-Important if you don't want my hand screen dissapears after the interaction
-                                #CHECK IF YOU CAN PLAY THE ELIGIBLE CARD
-                                if (play_a_card(itemindex, item)== True):
-                                    #IF AN Eight YOU SHOULD CHOICE THE SUIT TO PLAY
-                                    CheckIsEight(item)
-                                    #PASS YOUR TURN
-                                    me_turn= False
+                            if me.gamecount==0: #CHOICE MENU
+                                #Show your hand
+                                result= renpy.show_screen('my_hand', False)
+                                #Choose some options to play
+                                if len(game.deck)>0: #You cannot pass if there are cards in the deck
+                                    shift= menu([('Coger una carta del mazo', 'draw'), ('Jugar una de tus cartas', 'play')])
+                                else:
+                                    shift= menu([('Pasar', 'pass'), ('Jugar', 'play')])
+                                #The results of your choices
+                                #DRAW A CARD FROM THE DECK
+                                if (shift=='draw'):
+                                    me_turn= draw_a_card(me)                                                                
+                                #PLAY A A CARD
+                                elif (shift=='play'):
+                                    renpy.show_screen('comment', "Escoge una carta.", 1)  
+                                    #SELECT A CARD FROM YOUR HAND
+                                    itemindex, item= renpy.call_screen('my_hand', True)
+                                    renpy.show_screen('my_hand', False) #<-Important if you don't want my hand screen dissapears after the interaction
+                                    if item== None:
+                                        me_turn= draw_a_card(me)
+                                    else:                                
+                                        #CHECK IF YOU CAN PLAY THE ELIGIBLE CARD
+                                        if (play_a_card(itemindex, item)== True):
+                                            me_turn= False
+                                            break
+                                #PASS YOUR TURN
+                                elif (shift=='pass'):                                                           
+                                    me_turn= PassYourTurn()
                                     break
-                            #PASS YOUR TURN
-                            elif (shift=='pass'):                            
-                                PassTurn() #<-Inc the PassCount
-                                CheckIfForceSuit()     
-                                me_turn= False
-                                break
+                            else: #DYNAMIC PLAY (NOT CHOICE MENU)
+                                itemindex, item= renpy.call_screen('my_hand', True) #SELECT A CARD FROM YOUR HAND
+                                renpy.show_screen('my_hand', False) #<-Important if you don't want my hand screen dissapears after the interaction
+                                if item== None:
+                                    me_turn= draw_a_card(me)
+                                elif item== False:
+                                    me_turn= PassYourTurn()
+                                    break
+                                else:                                
+                                    #CHECK IF YOU CAN PLAY THE ELIGIBLE CARD
+                                    if (play_a_card(itemindex, item)== True):
+                                        me_turn= False
+                                        break
                         #End of the While loop
                         if len(me.deck)==0: #I HAVE NOT CARDS = LAST TURN FOR ME = I WIN!
                             break
@@ -554,7 +600,7 @@ init python:
                                     else: #if opponent has a level of master, he should play the card of high value (important in case of tie or he loss)
                                         #So first I select all the cards of the suit of max frequency
                                         BetterSuit= best_cards_to_play[0][1][1] #The suit of the first card of the list
-                                        renpy.watch(BetterSuit)  #DEBUG
+                                        #renpy.watch(BetterSuit)  #DEBUG
                                         #x=""
                                         for item in best_cards_to_play: #get all the cards of this suit
                                             if item[1][1]== str(BetterSuit):
@@ -614,15 +660,15 @@ init python:
                             ResetPassCount() #PassCount= 0
                             renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(game.CardInPlay[4])+"}"+str(game.CardInPlay[2])+" de "+str(game.CardInPlay[5])+str(game.CardInPlay[3])+"{/color}.\nTe obligo a que eches un palo "+game.ForcedSuitStr+".")
                         else: #IF CARD-IN-PLAY IS A REGULAR CARD (NOT AN Eight)
-                            if (me.gamecount<4):
+                            if (me.gamecount==0):
                                 renpy.say(me.adversary.charobj, "Mi carta es {color=#"+str(game.CardInPlay[4])+"}"+str(game.CardInPlay[2])+" de "+str(game.CardInPlay[5])+str(game.CardInPlay[3])+"{/color}.\nEcha una carta del mismo palo o número.")
                     #------IF ADVERSARY HAS NOT A PLAYABLE CARD ---------
                     else:
                         if (len(me.adversary.deck)>0):
-                            PassTurn() #<-Inc the PassCount
+                            IncPassCount() #<-Inc the PassCount
                             renpy.say(me.adversary.charobj, "Paso el turno.")
                             CheckIfForceSuit()   
-                        else:                        
+                        else:                    
                             renpy.say(me.adversary.charobj, "Mi última carta es {color=#"+str(game.CardInPlay[4])+"}"+str(game.CardInPlay[2])+" de "+str(game.CardInPlay[5])+str(game.CardInPlay[3])+"{/color}.\n¡Ya no me quedan más!")
                             break
                     #------ ADVERSARY END OF TURN ------------------
@@ -630,7 +676,6 @@ init python:
                     me_turn= True
             #-------------END OF while (True) = ROUND ENDS
             renpy.hide('card_img', layer="game")
-            renpy.hide('deck_img', layer="game")
             renpy.hide_screen("adversary_data")                        
             renpy.hide_screen("my_hand")
             if len(me.deck)==0:    
@@ -651,7 +696,8 @@ init python:
                 #If tie occurs, the lowest score wins this round
                 if (_mescore<_adversaryscore): #You win!
                     #The puntuation is the difference between the high and low score
-                    game.MeScore+= _adversaryscore - _mescore
+                    won_score= _adversaryscore - _mescore
+                    game.MeScore+= won_score
                     MeWonRounds+= MeWonRounds
                     renpy.show_screen('comment', "¡¡¡HAS GANADO ESTA RONDA y "+str(won_score)+" puntos!!!")  
                     renpy.say(me.adversary.charobj, YouWinMsg)
@@ -663,8 +709,14 @@ init python:
                     renpy.show_screen('comment', "Habéis empatado.") 
             renpy.pause(2.0)
         #-------------END OF GAME ()
+        me.gamecount+= 1
+        if (game.MeScore>=100):
+            me.victorycount+= 1
+        else:
+            me.downcount+= 1
         renpy.hide('card_img', layer="game")
-        renpy.hide('deck_img', layer="game")
         renpy.hide_screen("game_data")                        
         renpy.hide_screen("adversary_data")                        
         renpy.hide_screen("my_hand")
+        if CurrentMusic!= None:
+            renpy.music.play(CurrentMusic, loop=True, fadein=2, fadeout=2)

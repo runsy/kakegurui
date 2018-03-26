@@ -38,7 +38,17 @@ screen my_hand(clickable):
         layer "game"
         python:
             MyHandLen= len(me.deck)
-            i= 0            
+            i= 0             
+        if game.ForceSuit== True:                 
+            label game.ForcedSuitStr+" forzado." xpos 0.21 ypos 0.45 background RoundRect("#00ae426f")  
+        if (clickable== True) and (me.gamecount>0) and (len(game.deck)==0): #Show the pass button
+            textbutton "Pasar el turno" xanchor 0.5 xpos 0.5 ypos 0.58 action Return([False, False])
+        #RESTING DECK (BACK)
+        if len(game.deck)>0:
+            if clickable== True:
+                imagebutton idle Transform("img/cards/BACK.png", zoom=0.3)  xpos 0.72 ypos 0.25 action Return([None, None])
+            else:
+                imagebutton idle Transform("img/cards/BACK.png", zoom=0.3)  xpos 0.72 ypos 0.25
         hbox spacing 0:
             for itemindex, item in enumerate(me.deck):    
                 $CardName= "img/cards/"+str(item[0])+str(item[1])+".png"
@@ -73,16 +83,8 @@ screen my_hand(clickable):
 #image card_img= At("[game.CardPath]", card_in_play_transform)
 image card_img= "[game.CardPath]"
 
-#RESTING DECK (BACK)
-image deck_img= "img/cards/BACK.png"
-
 transform card_in_play_transform:
     xpos 0.7
-    ypos 0.38
-    zoom 0.3
-
-transform deck_transform:
-    xpos 0.25
     ypos 0.38
     zoom 0.3
 
