@@ -2,8 +2,6 @@
 errors listed below, and try again.
 
 
-File "game/init_python.rpy", line 12: invalid syntax
-        elif type == "hand32"
-    
+File "game/02.init_python.rpy", line 277: 'break' outside loop
 
 Ren'Py Version: Ren'Py 6.99.12.2.2029

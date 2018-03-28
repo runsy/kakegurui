@@ -34,6 +34,11 @@ screen game_data():
             hbox:
                 label _adversaryscore
 
+
+transform fade_card:      
+    zoom 0.3
+    additive 0.15
+
 screen my_hand(clickable):
         layer "game"
         python:
@@ -46,7 +51,7 @@ screen my_hand(clickable):
         #RESTING DECK (BACK)
         if len(game.deck)>0:
             if clickable== True:
-                imagebutton idle Transform("img/cards/BACK.png", zoom=0.3)  xpos 0.72 ypos 0.25 action Return([None, None])
+                imagebutton idle Transform("img/cards/BACK.png", zoom=0.3)  hover fade_card("img/cards/BACK.png") xpos 0.72 ypos 0.25 action Return([None, None])
             else:
                 imagebutton idle Transform("img/cards/BACK.png", zoom=0.3)  xpos 0.72 ypos 0.25
         hbox spacing 0:
@@ -72,7 +77,7 @@ screen my_hand(clickable):
                         _xpos= _xpos -(45*MyHandLen)
                     _ypos= config.screen_height-260
                 if clickable== True:
-                    imagebutton idle Transform(CardName, zoom=_zoom) xanchor 0.5 xpos _xpos ypos _ypos action Return([itemindex, item])
+                    imagebutton idle Transform(CardName, zoom=_zoom) hover fade_card(CardName) xanchor 0.5 xpos _xpos ypos _ypos action Return([itemindex, item])
                 else:
                     imagebutton idle Transform(CardName, zoom=_zoom) xanchor 0.5 xpos _xpos ypos _ypos
                 $i= i+1

@@ -1,21 +1,11 @@
 #Game script
 #----------------
-#Load other script files
-jump layers
-jump characters #Load the characters definitions & Images
-jump backgrounds #Load the background images
-jump sound #Load the sound functions
-jump effects #Load the effect functions
-jump inventory #Load the inventory
-jump misc_screens
-jump game_screens
-jump init_python #Init the python
 
 #----------------
 #-->Start of game
 #----------------
 
-label start:
+label start:    
     #jump _010
     scene black
     stop music
@@ -27,6 +17,7 @@ label start:
 
 label intro:
     play music music.farty_mcsty fadein 2 fadeout 2
+    $DefineChars() 
     call LoadGUI
     call UpdateToday
     ma "Hola, me voy a presentar."
@@ -273,10 +264,26 @@ label _22:
     pa sonriente "Toma... Un regalo.\nUna rosa para otra rosa."    
     show screen comment("Cógela", 1.0)
     call screen show_item("img/item/rose.png")
-    play sound effect.realizacion
+    #play sound effect.realizacion
     $change_cursor("hand32")
     show heartbeat at atllove(0.5, 0.5) with dissolve
     ma sonriente "¡¡¡Oooh!!! ¡¡¡Me encanta!!!\n¡Muchas gracias!"
+    pa sonrojado "Ahora me tienes que regalar tú algo."
+    hide heartbeat
+    ma sorprendido "¡¿Yo?!\nPues... ejem... no tengo nada para darte."
+    pa expectante "Regálame tu nombre.\nTodavía no sé cómo te llamas..."
+    menu:
+        "Me llamo Maru.":                        
+            jump _23
+        "{i}{color=#ff6347}\[Mentir\]{/color}{/i} Ein... Ups... Me llamo M-M-María...":            
+            jump _24
+label _23:
+    $cho_status= False
+    jump _25
+label _24:            
+    $cho_status= True
+label _25:
+    $me.choices.append(Choice(2, cho_status, "Mentiste a Paolo sobre tu verdadero nombre."))
     #<--End of game
 label end:
     return
@@ -284,6 +291,8 @@ label end:
 label LoadGUI:
     show screen inventory_button #Show the button of the inventory
     show screen back_button #Show the button to rollback 
+    return    
 label UpdateToday:
     show screen today
+    return
     

@@ -73,7 +73,7 @@ image je sonriente= "img/char/jesica/jesica_sonriente.png"
 image je sorprendido= "img/char/jesica/jesica_sorprendido.png"
 
 #Paolo
-define pa=Character("Paolo", image="pao", color="#FF33FF")
+define pa=Character("Paolo", image="pao", color="#5FB404")
 image side pao= "img/char/paolo/paolo_side.png"
 image side Paolo_pulsometer= im.FactorScale("img/char/paolo/paolo_side.png", 0.5)
 image pao neutral= "img/char/paolo/paolo_neutral.png"
@@ -88,4 +88,4 @@ image pao sorprendido= "img/char/paolo/paolo_sorprendido.png"
 image antia= "img/char/antia/an_normal.png"
 image antia alegre= "img/char/antia/an_alegre.png"
 image antia sonriente= "img/char/antia/an_sonriente.png"
-#----------
+#---------

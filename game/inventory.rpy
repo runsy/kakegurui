@@ -20,34 +20,34 @@ screen aff_screen:
   frame:
    vbox:
     hbox:
-     for x in me.friendslist:
-      if x.isknown & x.isfriend:
+     for friend in me.friendslist:
+      if friend.isknown & friend.isfriend:
        vbox:
-        text "{color=ffffff}[x.name]{/color}" at center
-        image("side [x.name]_pulsometer") at center
+        text "{color=ffffff}[friend.name]{/color}" at center
+        image("side [friend.name]_pulsometer") at center
         vbox:
          hbox:
           image("affinity")
           python:
-            if x.affinity>=60:
+            if friend.affinity>=60:
              color_affinity= "105e01"
-            elif x.affinity>=40 and x.affinity<60:
+            elif friend.affinity>=40 and friend.affinity<60:
              color_affinity= "eac168" 
-            elif x.affinity<40:
+            elif friend.affinity<40:
              color_affinity= "bd0b18"            
-          text "{color=[color_affinity]}[x.affinity]%{/color}"
-         if x.genre== Genre.Male:
+          text "{color=[color_affinity]}[friend.affinity]%{/color}"
+         if friend.genre== Genre.Male:
           hbox:
            image("heart")
-           text "[x.love]%"
+           text "[friend.love]%"
   frame:
    vbox:
     text "Inventario" at center
     hbox:
-     for x in me.items:      
+     for item in me.items:      
        vbox:
-        image("[x.filename]") at center
-        text "{size=-4}{color=ffffff}[x.name]{/color}{/size}" at center
+        image("[item.filename]") at center
+        text "{size=-4}{color=ffffff}[item.name]{/color}{/size}" at center
   frame:
     vbox:
      textbutton "Volver" action Return()

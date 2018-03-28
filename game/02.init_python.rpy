@@ -1,10 +1,9 @@
 init python:
-
     import sys
     reload(sys)
     sys.setdefaultencoding("utf-8")
 
-#Procedures
+    #Procedures
     def change_cursor(type="default"):
         persistent.mouse = type
         if type == "default":
@@ -20,184 +19,33 @@ init python:
 
     change_cursor("hand32")
 
-#--------------------------------------------
-#Define the player's choices that affect the story
-    class Choice:
-        def __init__(self, id, status, description):
-            self.id= id
-            self.status= status
-            self.description= description       
-
-# 1: Le preguntasté a nacho acerca de su nueva relación.   
-#--------------------------------------------
-#Define the Today date
-#05/10/09 18:00
-    class TodayClass:   
-    
-        def __init__(self, year, month, day, hour, minute):
-            import datetime
-            #(2015, 9, 1, 7, 20)
-            self.datetime= datetime.datetime(year, month, day, hour, minute)
-            self.day= self.datetime.strftime("%d") 
-            months= ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dec"]
-            self.month= months[month-1]
-            days= ["Lun","Mar","Mie","Jue","Vie","Sab","Dom"]
-            self.dayofweek= days[self.datetime.weekday()] 
-            
-        def IncDay(self):
-            import datetime
-            import timedelta
-            self.datetime+= timedelta(days=10)
-            self.day= self.datetime.strftime("%d") 
-            months= ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dec"]
-            self.month= "Pipo"
-            days= ["Lun","Mar","Mie","Jue","Vie","Sab","Dom"]
-            self.dayofweek= "Sab"
-#--------------------------------------------   
-#Define the item class
-    class Item:
-        def __init__(self, id, name, filename, value, important):
-            self.id= id
-            self.name= name
-            self.filename= filename
-            self.value= value
-            self.important= important
-#--------------------------------------------   
-#Define the Friend class
-    class Friend:
-        def __init__(self, char):
-            self.char= char  
-#--------------------------------------------
-#Define the Genre class (workaround because enumerations not supported in python 2.7)
-#Use: Genre.Male or Genre.Female
-    class Enum(set):
-        def __getattr__(self, name):
-            if name in self:
-                return name
-            raise AttributeError
-            
-    Genre= Enum(["Male", "Female"])
-#-------------------------------------------- 
-#Define the Char class
-    class Charact(object):
-        def __init__(self, charobj= None, name="", genre= Genre.Male, money=0, affinity=90, love=0, score=0, adversary= None, isknown= False, isfriend= False, gamelevel=1, victorycount=0, downcount=0, gamecount=0):
-            self.adversary= adversary
-            self.affinity= affinity
-            self.charobj= charobj
-            self.choices= []
-            self.deck= []    
-            self.friendslist= []
-            self.genre= genre
-            self.isfriend= isfriend
-            self.isknown= isknown
-            self.love= love
-            self.money= money
-            self.name= name
-            self.score= score
-            self.gamelevel= gamelevel #there is three levels: 1=casual, 2=expert, 3=master
-            self.victorycount= victorycount
-            self.downcount= downcount
-            self.gamecount= gamecount
-            self.items= []
-
-        #Buy item 
-        def buy(self, item):
-            if self.money>= item.cost:
-                self.money-= item.cost
-                self.items.append(item)
-                return True
-            else:
-                return False
-        #earn Money
-        def earn(self, amount):
-            self.money+= amount
-        #Check if the char has item
-        def has_item(self, item):
-            if item in self.items:
-                return True
-            else:
-                return False
-        #Add a item to char   
-        def add_item(self, id, name, pic, value):
-            self.items.append(id, name, pic, value)
-        #Edit the affinitty meter
-        def change_affinity(self, inc, level):
-            if level==0:
-                min_random= 1
-                max_random= 3
-            elif level==1:
-                min_random= 3
-                max_random= 10
-            elif level==2:
-                min_random= 10
-                max_random= 20
-            elif level==3:
-                min_random= 20
-                max_random= 50
-            else:
-                min_random= 3
-                max_random= 15
-            import random
-            amount= random.randint(min_random, max_random)
-            if inc==False:
-                amount= -amount
-            self.affinity+= amount
-            if self.affinity<0:
-                self.affinity=0
-            elif self.affinity>100:
-                self.affinity=100
-            if self.affinity>=40:
-                self.isfriend= True
-            else:
-                self.isfriend= False
-        #Edit the love meter
-        def change_love(self, inc, level):
-            if level==0:
-                min_random= 1
-                max_random= 3
-            elif level==1:
-                min_random= 3
-                max_random= 10
-            elif level==2:
-                min_random= 10
-                max_random= 20
-            elif level==3:
-                min_random= 20
-                max_random= 50
-            else:
-                min_random= 3
-                max_random= 15
-            import random
-            amount= random.randint(min_random, max_random)
-            if inc==False:
-                amount= -amount
-            self.love+= amount
-            if self.love<0:
-                self.love=0
-            elif self.love>100:
-                self.love=100
-#--------------------------------------------    
-#Create the instances of the characters:
-    #Create the chars
-    me= Charact(name= "Maru", charobj=ma, genre= Genre.Female, money=100.0, gamecount=1)
-    violeta= Charact(name="Violeta", charobj=vi, genre= Genre.Female, money=100.0, affinity=90, love=0,  isknown= True, isfriend= True, gamelevel=1)
-    nacho= Charact(name="Nacho", charobj=na, genre= Genre.Male, money=100.0, affinity=75, love=5,  isknown= True, isfriend= True, gamelevel=1)
-    paolo= Charact(name="Paolo", charobj=pa, genre= Genre.Male, money=2000.0, affinity=85, love=60,  isknown= False, isfriend= False, gamelevel=2)
-    #Append the friends
-    me.friendslist.append(nacho)
-    me.friendslist.append(violeta)
-    #Append the items
-    log= Item(1, "Diario", "log", 0.1, True)
-    me.items.append(log)
-    rose= Item(1, "Rosa", "rose", 5.0, True)
-    me.items.append(rose)
-
-    #Today date:
-    today= TodayClass(2015, 9, 15, 7, 20)
+    def DefineChars():   
+        global me
+        global nacho
+        global violeta
+        global paolo
+        global today
+        #Create the instances of the characters:
+        #Create the chars
+        me= Charact(name= "Maru", charobj=ma, genre= Genre.Female, money=100.0, gamecount=1)
+        violeta= Charact(name="Violeta", charobj=vi, genre= Genre.Female, money=100.0, affinity=90, love=0,  isknown= True, isfriend= True, gamelevel=1)
+        nacho= Charact(name="Nacho", charobj=na, genre= Genre.Male, money=100.0, affinity=75, love=5,  isknown= True, isfriend= True, gamelevel=1)
+        paolo= Charact(name="Paolo", charobj=pa, genre= Genre.Male, money=2000.0, affinity=85, love=60,  isknown= False, isfriend= False, gamelevel=2)
+        #Append the friends
+        me.friendslist.append(nacho)
+        me.friendslist.append(violeta)
+        #Append the items
+        log= Item(1, "Diario", "log", 0.1, True)
+        me.items.append(log)
+        rose= Item(1, "Rosa", "rose", 5.0, True)
+        me.items.append(rose)
+         
+        #Today date:
+        today= TodayClass(2015, 9, 15, 7, 20)
 
     #Card Game Implementation
 
-#Define the Char class
+    #Define the Char class
     class _Game():
         def __init__(self, deck=[], WholeDeck=[], DiscardedDeck=[], CardPath= "", CardInPlay= tuple, ForceSuit= False, ForcedSuit="", ForcedSuitStr="", PassCount=0, NumCards_FirstHand= 7, TurnCount=0, RoundCount=0, MeScore=0, AdversaryScore=0):
             self.deck= deck          
