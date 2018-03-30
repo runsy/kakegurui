@@ -1,14 +1,22 @@
+screen gameinfo(comment_text, _time= 1.5):
+ frame:
+  at show_hide_dissolve
+  xcenter 0.5
+  background RoundRect("#ae426f")
+  hbox:
+   timer _time repeat False action [Hide('gameinfo')]
+   text "{size=-3}{color=ffffff}[comment_text]{/color}{/size}" 
 screen adversary_data():
     layer "game"
     frame xalign 0.5 ypos 0.1:
         python:
-            if me.adversary.genre== "Male":
+            if c.me.adversary.genre== "Male":
                 pronoun= "Él"
             else:
                 pronoun= "Ella"
-            _adversary_cards= pronoun+" tiene "+str(len(me.adversary.deck))+" cartas."
+            _adversary_cards= pronoun+" tiene "+str(len(c.me.adversary.deck))+" cartas."
             #_cards=""
-            #for item2 in me.adversary.deck:
+            #for item2 in c.me.adversary.deck:
                 #_cards= _cards+str(item2[0])+str(item2[1])+", "
         background RoundRect("#00ae426f")  
         hbox:
@@ -22,7 +30,7 @@ screen game_data():
             _roundcount= "Ronda= "+ str(game.RoundCount)
             _turncount= "Turno= "+ str(game.TurnCount)
             _mescore= "Mis puntos= "+str(game.MeScore)
-            _adversaryscore= "Puntos de "+me.adversary.name+"= "+str(game.AdversaryScore)
+            _adversaryscore= "Puntos de "+ c.me.adversary.name + "= " +str(game.AdversaryScore)
         background RoundRect("#00ae426f")  
         vbox:
             hbox:
@@ -42,11 +50,11 @@ transform fade_card:
 screen my_hand(clickable):
         layer "game"
         python:
-            MyHandLen= len(me.deck)
+            MyHandLen= len(c.me.deck)
             i= 0             
         if game.ForceSuit== True:                 
             label game.ForcedSuitStr+" forzado." xpos 0.21 ypos 0.45 background RoundRect("#00ae426f")  
-        if (clickable== True) and (me.gamecount>0) and (len(game.deck)==0): #Show the pass button
+        if (clickable== True) and (c.me.gamecount>0) and (len(game.deck)==0): #Show the pass button
             textbutton "Pasar el turno" xanchor 0.5 xpos 0.5 ypos 0.58 action Return([False, False])
         #RESTING DECK (BACK)
         if len(game.deck)>0:
@@ -55,7 +63,7 @@ screen my_hand(clickable):
             else:
                 imagebutton idle Transform("img/cards/BACK.png", zoom=0.3)  xpos 0.72 ypos 0.25
         hbox spacing 0:
-            for itemindex, item in enumerate(me.deck):    
+            for itemindex, item in enumerate(c.me.deck):    
                 $CardName= "img/cards/"+str(item[0])+str(item[1])+".png"
                 python:
                     if MyHandLen<=7:

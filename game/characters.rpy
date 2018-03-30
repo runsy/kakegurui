@@ -47,15 +47,20 @@ image vio triste= "img/char/violeta/violeta_triste.png"
 
 #Nacho
 define na=Character("Nacho", image="nac", color="#053a9a")
-image side nac= "img/char/roi/roi_side.png"
-image side Nacho_pulsometer= im.FactorScale("img/char/roi/roi_side.png", 0.5)
-image nac asustado= "img/char/roi/roi_asustado.png"
-image nac chulo= "img/char/roi/roi_chulo.png"
-image nac colorado= "img/char/roi/roi_colorado.png"
-image nac enfadado= "img/char/roi/roi_enfadado.png"
-image nac neutral= "img/char/roi/roi_neutral.png"
-image nac picaro= "img/char/roi/roi_picaro.png"
-image nac sonriente= "img/char/roi/roi_sonriente.png"
+image side nac= "img/char/nacho/nacho_side.png"
+image side Nacho_pulsometer= im.FactorScale("img/char/nacho/nacho_side.png", 0.5)
+image nac asustado= "img/char/nacho/nacho_asustado.png"
+image nac chulo= "img/char/nacho/nacho_chulo.png"
+image nac colorado= "img/char/nacho/nacho_colorado.png"
+image nac enfadado= "img/char/nacho/nacho_enfadado.png"
+image nac neutral= "img/char/nacho/nacho_neutral.png"
+image nac picaro= "img/char/nacho/nacho_picaro.png"
+image nac sonriente= "img/char/nacho/nacho_sonriente.png"
+image nac sorprendido= "img/char/nacho/nacho_sorprendido.png"
+image nac triste= "img/char/nacho/nacho_triste.png"
+image nac engreido= "img/char/nacho/nacho_engreido.png"
+image nac avergonzado= "img/char/nacho/nacho_avergonzado.png"
+image nac alegre= "img/char/nacho/nacho_alegre.png"
 
 #Mama
 define mama=Character("Mamá", image="mama", color="#036d00")
@@ -64,13 +69,15 @@ image mama feliz= "img/char/mama/mama_feliz.png"
 image mama irritado= "img/char/mama/mama_irritado.png"
 
 #Jesica
-define jes=Character("Jesica", image="je", color="#FF33FF")
-image side je= "img/char/jesica/jesica_side.png"
-image je enfadado= "img/char/jesica/jesica_enfadado.png"
-image je neutral= "img/char/jesica/jesica_neutral.png"
-image je alegre= "img/char/jesica/jesica_alegre.png"
-image je sonriente= "img/char/jesica/jesica_sonriente.png"
-image je sorprendido= "img/char/jesica/jesica_sorprendido.png"
+define je=Character("Jesica", image="jes", color="#FF33FF")
+image side jes= "img/char/jesica/jesica_side.png"
+image jes enfadado= "img/char/jesica/jesica_enfadado.png"
+image jes neutral= "img/char/jesica/jesica_neutral.png"
+image jes alegre= "img/char/jesica/jesica_alegre.png"
+image jes sonriente= "img/char/jesica/jesica_sonriente.png"
+image jes sorprendido= "img/char/jesica/jesica_sorprendido.png"
+image jes lloroso= "img/char/jesica/jesica_lloroso.png"
+image jes picaro= "img/char/jesica/jesica_picaro.png"
 
 #Paolo
 define pa=Character("Paolo", image="pao", color="#5FB404")
@@ -85,7 +92,34 @@ image pao sonrojado= "img/char/paolo/paolo_sonrojado.png"
 image pao sorprendido= "img/char/paolo/paolo_sorprendido.png"
 
 #Antia
-image antia= "img/char/antia/an_normal.png"
-image antia alegre= "img/char/antia/an_alegre.png"
-image antia sonriente= "img/char/antia/an_sonriente.png"
+define an=Character("Antía", image="ant", color="#ff0000")
+image side Antía_pulsometer= im.FactorScale("img/char/antia/an_side.png", 0.5)
+image side ant= "img/char/antia/an_side.png"
+image ant= "img/char/antia/an_normal.png"
+image ant alegre= "img/char/antia/an_alegre.png"
+image ant sonriente= "img/char/antia/an_sonriente.png"
+image ant sorprendido= "img/char/antia/an_sorprendido.png"
+image ant colorado= "img/char/antia/an_colorado.png"
+image ant normal= "img/char/antia/an_normal.png"
+image ant cabreado= "img/char/antia/an_cabreado.png"
+image ant asustado= "img/char/antia/an_asustado.png"
+image ant enfadado= "img/char/antia/an_enfadado.png"
+image ant engreido= "img/char/antia/an_engreido.png"
+image ant lloroso= "img/char/antia/an_lloroso.png"
+image ant timido= "img/char/antia/an_timido.png"
+image ant triste= "img/char/antia/an_triste.png"
+
+#Carmen
+define ca=Character("Carmen", image="car", color="#003366")
+image side Carmen_pulsometer= im.FactorScale("img/char/carmen/carmen_side.png", 0.5)
+image side car= "img/char/carmen/carmen_side.png"
+image car= im.FactorScale("img/char/carmen/ca_normal.png", 0.8)
+image car alegre= im.FactorScale("img/char/carmen/ca_alegre.png", 0.8)
+image car cabreado= im.FactorScale("img/char/carmen/ca_cabreado.png", 0.8)
+image car colorado= im.FactorScale("img/char/carmen/ca_colorado.png", 0.8)
+image car enfadado= im.FactorScale("img/char/carmen/ca_enfadado.png", 0.8)
+image car engreido= im.FactorScale("img/char/carmen/ca_engreido.png", 0.8)
+image car lloroso= im.FactorScale("img/char/carmen/ca_lloroso.png", 0.8)
+image car preocupado= im.FactorScale("img/char/carmen/ca_preocupado.png", 0.8)
+image car triste= im.FactorScale("img/char/carmen/ca_triste.png", 0.8)
 #---------

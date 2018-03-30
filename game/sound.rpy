@@ -3,6 +3,7 @@
 define music.farty_mcsty= "sound/music/Eric Matyas-Farty McSty.ogg"
 define music.dreaming_in_puzzles= "sound/music/Eric Matyas-Dreaming-in-Puzzles.ogg"
 define music.calmer_times= "sound/music/Eric Matyas-Calmer-Times_Looping.ogg"
+define music.burglars= "sound/music/Eric Matyas-Burglars_Looping.ogg"
 
 #Sound effects
 
@@ -19,3 +20,6 @@ define effect.pedo= "sound/effects/pedo.ogg"
 define effect.flash= "sound/effects/flash.ogg"
 define effect.romper= "sound/effects/romper.ogg"
 define effect.realizacion= "sound/effects/realizacion.ogg"
+define effect.golpe_seco_2= "sound/effects/golpe_seco_2.ogg"
+define effect.hacer_scroll= "sound/effects/hacer_scroll.ogg"
+define effect.alarma= "sound/effects/alarma.ogg"

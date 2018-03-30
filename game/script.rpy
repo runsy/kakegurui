@@ -1,12 +1,7 @@
 #Game script
 #----------------
 
-#----------------
-#-->Start of game
-#----------------
-
-label start:    
-    #jump _010
+label start:        
     scene black
     stop music
     play sound effect.typing_PC
@@ -14,12 +9,16 @@ label start:
     play sound effect.typing_PC
     centered "{color=#fff}{cps=20}15 de septiembre{/cps}{/color}"
     stop sound
-
-label intro:
+label presentacion:
     play music music.farty_mcsty fadein 2 fadeout 2
-    $DefineChars() 
+    python:
+        characts= {} #Dictionary of characters. They are accessed by: c.nameofthecharacter, ie.: c.violeta
+        CreateCharacts() #create all the characters
+        InitMe() #Init the Me character
+        now_datetime= NowClass(2015, 9, 15, 7, 20) #Set the current datetime
     call LoadGUI
-    call UpdateToday
+    show screen current_datetime
+    #jump test
     ma "Hola, me voy a presentar."
     ma "Me llamo Maruja, pero nadie me llama así. Todo el mundo me dice {b}Maru{/b}, a secas."
     ma "Tengo 15 años y estoy a punto de cumplir los dieciseis. ¡Voy a celebrar una súper fiesta!"
@@ -35,7 +34,7 @@ label intro:
     ma "La afinidad indica el grado de amistad con esa persona.\nTambién podrás ver cuán enamorado está un chico de ti."
     ma "Y ahora me voy para el insti. Empieza mi aventura.\n{i}Si se le puede llamar a eso volver al cole.{/i}"
 
-label _001:
+label primer_acto:
     scene bg insti_puerta at atldissolve 
     ma sonriente "Querido insti... ¿A que parece una cárcel? Jijiji.\nBueno, no es para tanto, pero casi."
     ma preocupado "Pero... ¡¿DÓNDE ESTÁN?! Esto debería estar ya lleno de gente.\nMis amigos,\n*Snif*"
@@ -47,14 +46,10 @@ label _001:
     vi "¡HOLA! ¡Maru! ¡¿Cómo estás?!"
     menu:
         "¡Agh! Casi me matas del susto":
-            jump _002
+            vi triste "¿Eso es lo único que me tienes que decir?"
+            vi chulesco "Ya veo lo que me has echado de menos..."
         "Pues muy bien. Me alegro de verte":
-            jump _003
-
-label _002:
-    vi triste "¿Eso es lo único que me tienes que decir?"
-    vi chulesco "Ya veo lo que me has echado de menos..."
-label _003:
+            pass
     vi expectante "Tengo tantas cosas que contarte..."
     vi "Me lo he pasado genial este verano.\n¡Mira qué morenita estoy! ¿Te lo puedes creer?"
     vi enfadado "Ya sabes que mis papás me obligaron a ir con ellos a la casa de la playa. Qué coñazo..."
@@ -83,56 +78,45 @@ label _003:
     vi rabioso "Mira quién habla, la que no se come un rosco." with Shake()
     menu:
         "Hay que ver como eres, jijiji.":
-            jump _004
+            vi neutral "Ya ves. Quiero mucho a Nacho —solo como amigo."
         "Oye, tía, te estás pasando tres pueblos.":
-            jump _005
+            play sound effect.golpe_dramatico
+            $c.violeta.change_affinity(False,0)
+            show screen comment("Violeta se indigna un poco")
+            vi chulesco "A ver, tía, que Nacho es mi amigo...\n¿Acaso no puedo darle un beso después de no verlo en dos meses?"
         "¡Eres una zorrona!":
-            jump _006
-label _004:
-    vi neutral "Ya ves. Quiero mucho a Nacho —solo como amigo."
-    jump _007
-label _005:
-    play sound effect.golpe_dramatico
-    $violeta.change_affinity(False,0)
-    show screen comment("Violeta se indigna un poco")
-    vi chulesco "A ver, tía, que Nacho es mi amigo...\n¿Acaso no puedo darle un beso después de no verlo en dos meses?"
-    jump _007
-label _006:
-    vi sonriente "Por lo menos yo sí pillo cacho, jajaja."
-    jump _007
-label _007:
+            vi sonriente "Por lo menos yo sí pillo cacho, jajaja."
     show nac neutral
     vi neutral "Y cambiando de tema. Nacho, ¿qué nos cuentas? ¿Qué hiciste en verano?"
     na "Pues nada, mucha playa, en el yate de mi padre, de fiesta. Nada del otro mundo."
     menu:
         "¿Y de tú novia qué de qué? ¿No nos hablas? Jejeje.":
-            jump _008
+            $cho_status= True
+            play sound effect.golpe_dramatico
+            $c.nacho.change_affinity(False,0)
+            show screen comment("Nacho piensa que eres muy cotilla")
+            na enfadado "¡¿Qué?! ¿Quién te ha contado eso?"
+            na colorado "Ejem... prefiero no hablar. Lo siento."             
         "{i}{color=#5bd53f}\[Ser discreta\]{/color}{/i} Ah, qué interesante.":
-            jump _009 
-label _008:
-    play sound effect.golpe_dramatico
-    $nacho.change_affinity(False,0)
-    show screen comment("Nacho piensa que eres muy cotilla")
-    na enfadado "¡¿Qué?! ¿Quién te ha contado eso?"
-    na colorado "Ejem... prefiero no hablar. Lo siento." 
-    $cho_status= True
-    jump _010
-label _009:
-    $cho_status= False 
-label _010:
-    $me.choices.append(Choice(1, cho_status, "Le preguntasté a nacho acerca de su nueva relación."))
+            $cho_status= False
+    $c.me.choices[0]= Choice(cho_status, "Le preguntasté a nacho acerca de su nueva relación.")
     na neutral "Bueno, voy entrando. A ver si veo a más colegas. Ciao"
     hide nac with dissolve
     show vio neutral at center with move
     vi expectante "Oye, tía, ¿echamos unas cartas?\nHe practicado mucho este verano."
-    $whowins= game_start(violeta, "Eres muy buena jugando a las cartas.", "Deberías practicar más, ja, ja, ja.")
+    $youwin= game_start(c.violeta, "Eres muy buena jugando a las cartas.", "Deberías practicar más, ja, ja, ja.")
+    if youwin== True:
+        show vio triste
+        ma picaro "Si quieres, te doy clases para que mejores más.\nLo necesitas, ja, ja, ja."
+    else:
+        vi chulesco "Estás en baja forma, amiga, ja, ja, ja."
     vi expectante "Bueno, y tú, tía, ¿qué hiciste este verano?"
     show vio sonriente
     ma neutral "Nada, me pasó un poco como a ti, tuve que ir de vacaciones con mis padres y... hermanita.\nDe vacaciones a Roma."
     vi expectante "¡¿Eh?! ¿Me vas a comparar Roma con el chalet de mis padres?\nCuenta, cuenta..."
     ma picaro "¿Tengo otra opción...?\nVaaale, te cuento..."
-label _011:
     hide screen inventory_button
+    hide screen current_datetime
     scene bg ruinas_romanas_sepia at atldissolve
     ma sonriente "Roma es una ciudad super chula. Aunque está muy sucia y hay piedras tiradas por todas partes, jeje."
     ma "Como te dije fui con mi madre y hermana, lo que era un tostón extra. Y hacía un calor que te cagas."
@@ -144,77 +128,57 @@ label _011:
     mama irritado "¡Maru! Empápate de la cultura de este país milenario y deja de quejarte, anda."
     show maru sorprendido at center
     ma sorprendido "Jo, mami, es que llevamos seis días aquí, y lo único que hemos hecho es andar y andar sólo para ver museos y cosas viejas y derruidas.\nMe aburro."
-    show je sonriente at left:
+    show jes sonriente at left:
         xzoom -1.0
     with moveinleft
     play sound effect.pasar_zumbando
-    jes "Hey, ¡¿cómo estáis?!"
+    je "Hey, ¡¿cómo estáis?!"
     mama irritado "¡Jesica! ¿Dónde te habías metido?\nA ver si te van a raptar..."    
-    jes neutral "¡Por ahí! A ver si encontraba un tesoro, jajaja."
+    je neutral "¡Por ahí! A ver si encontraba un tesoro, jajaja."
     menu:
         "Tú eres tonta.":
-            jump _012
+            play sound effect.shock2  
+            show maru alegre
+            je enfadado "¡¡¡LA TONTA ERES TÚ!!!" with Shake()
         "Cariño, haz caso a mamá...":
-            jump _013 
-label _012:
-    play sound effect.shock2  
-    show maru alegre
-    jes enfadado "¡¡¡LA TONTA ERES TÚ!!!" with Shake()
-    jump _014
-label _013:
-    show maru enfadado
-    jes neutral "Sí, el mismo caso que le haces tú... ¡Juas!"
-    jump _014
-label _014:
+            show maru enfadado
+            je neutral "Sí, el mismo caso que le haces tú... ¡Juas!"
     play sound effect.shock2 
     mama irritado "A ver niñas ¡¡¡Portaos bien!!!" with Shake()
-    jes alegre "He visto un carrito de los helados.\nMami, ¿me compras uno? Porfa..."
+    je alegre "He visto un carrito de los helados.\nMami, ¿me compras uno? Porfa..."
     mama "Bueno, pero espero que te portes bien..."
-    hide mama with moveinright
+    hide mama with dissolve
     play sound effect.pedo
-    jes sonriente "Ja, ja, ja. Ya ves, siempre consigo lo que quiero."
-    hide je with moveinleft
+    je sonriente "Ja, ja, ja. Ya ves, siempre consigo lo que quiero."
+    hide jes with dissolve
     ma enfadado " Si no tuviera tan solo cinco años, se iba a enterar de lo que vale un peine.\n¿Y ahora que hago yo? Ya he visto todo..."
     play sound effect.flash
     scene bg ruinas_romanas with flash     
     show maru sorprendido at left_to_right
     ma sorprendido "¡Hey! ¿Qué ha sido eso?"
-    python:
-        paolo.isknown= True
-        paolo.isfriend= True
-        me.friendslist.append(paolo)
+    $c.me.AddFriend(c.paolo, True, True)
     show pao sonriente at right with moveinright
     pa "Ciao, bambina."
     menu:
         "¿Quién eres?":
-            jump _017
+            pass
         "¿Me has sacado una foto?":
-            jump _015
+            pa sorprendido "Si te dijera que sí, ¿te importaría?"
+            menu:
+                "...No":
+                    pass                            
+                "¡Pues claro que me importa, no te conozco!":
+                    $c.paolo.change_love(True, 0)
+                    show screen comment("Paolo piensa que eres guay.")    
+                    pa sonriente "Me encantan las chicas con carácter, ja, ja, ja"  
         "¿Te quieres casar conmigo?":
-            jump _016
-
-label _015:
-    pa sorprendido "Si te dijera que sí, ¿te importaría?"
-    menu:
-        "...No":
-            jump _017                            
-        "¡Pues claro que me importa, no te conozco!":
-            jump _015_2
-label _015_2:
-    $paolo.change_love(True, 0)
-    show screen comment("Paolo piensa que eres guay.")    
-    pa sonriente "Me encantan las chicas con carácter, ja, ja, ja"            
-    jump _017
-label _016:
-    show pao sonrojado
-    $paolo.change_love(True, 0)
-    show screen comment("Paolo se siente halagado.")
-    play sound effect.shock2 
-    show heartbeat at atllove(0.85, 0.4) with dissolve
-    pause
-    hide heartbeat
-    jump _017
-label _017:
+            show pao sonrojado
+            $c.paolo.change_love(True, 0)
+            show screen comment("Paolo se siente halagado.")
+            play sound effect.shock2 
+            show heartbeat at atllove(0.85, 0.4) with dissolve
+            pause
+            hide heartbeat
     pa sonriente "Me ciamo Paolo. He venido a visitar las ruinas.\nY sacar fotos. Me gusta la historia."
     show maru colorado
     show heartbeat at atllove(0.5, 0.5) with dissolve
@@ -225,18 +189,16 @@ label _017:
     pa expectante "Tu mirada, tu pose, tu forma de ser... quizás."
     menu:
         "Gracias, qué bonitas palabras...":
-            jump _019
+            pass
         "¡Anda ya! ¡Si no me conoces de nada!":
-            jump _018
-label _018:        
-    show pao sorprendido
-    $paolo.change_love(False, 0)
-    show heartbeat at atlbrokenheart(0.85, 0.4)
-    play sound effect.romper
-    show screen comment("Lo has herido un poco en sus sentimientos.")
-    pause
-    hide heartbeat
-label _019:
+            show pao sorprendido
+            $c.paolo.change_love(False, 0)
+            show heartbeat at atlbrokenheart(0.85, 0.4)
+            play sound effect.romper
+            $renpy.pause(2.0, hard=True)
+            show screen comment("Lo has herido un poco en sus sentimientos.")
+            pause
+            hide heartbeat
     pa neutral "Bueno, y qué te cuentas bambina.\n¿Qué se te ha perdido por Roma?"
     ma alegre "Estoy de viaje con mi madre y hermana. Pasando unas vacaciones.\nSoy española."
     pa sonriente "¡Oh! ¡Espaniola! ¡Me flipan las bambinas espaniolas!\n¿Y te gusta Roma entonces?"
@@ -245,17 +207,11 @@ label _019:
     pa sonriente "¿Qué te parecería quedar cuando anochezca? Tú y yo solos.\nTe enseñaría los rincones más bonitos de Roma..."
     menu:
         "Vale. ¡Estupendo!":
-            jump _20
+            show maru colorado
+            pa sonriente "¡Cuánto me alegro! No te arrepentirás.\nRoma tiene muchas cosas por descubrir y... amar."            
         "No sé yo...":
-            jump _21
-label _20:
-    show maru colorado
-    pa sonriente "¡Cuánto me alegro! No te arrepentirás.\nRoma tiene muchas cosas por descubrir y... amar."
-    jump _22
-label _21:
-    pa sonrojado "A ver, bambina. No tienes nada que temer.\nConmigo estarás a salvo y en buena compañía."
-    ma normal "¿Pues sabes qué te digo?"
-label _22:
+            pa sonrojado "A ver, bambina. No tienes nada que temer.\nConmigo estarás a salvo y en buena compañía."
+            ma normal "¿Pues sabes qué te digo?"
     show heartbeat at atllove(0.5, 0.5) with dissolve
     ma alegre "Sí, quedo contigo esta noche. Pareces un buen chaval\nEso y que estoy súper aburrida, ja, ja, ja."
     pa sonriente "Ja, ja, ja. Lo vamos a pasar genial. Ya verás."
@@ -274,16 +230,166 @@ label _22:
     pa expectante "Regálame tu nombre.\nTodavía no sé cómo te llamas..."
     menu:
         "Me llamo Maru.":                        
-            jump _23
+            $cho_status= False
+            $temp= "Maru"
         "{i}{color=#ff6347}\[Mentir\]{/color}{/i} Ein... Ups... Me llamo M-M-María...":            
-            jump _24
-label _23:
-    $cho_status= False
-    jump _25
-label _24:            
-    $cho_status= True
-label _25:
-    $me.choices.append(Choice(2, cho_status, "Mentiste a Paolo sobre tu verdadero nombre."))
+            $cho_status= True
+            $temp= "María"
+    $c.me.choices[1]= Choice(cho_status, "Mentiste a Paolo sobre tu verdadero nombre.")
+    pa sonriente "Oh, [temp]... ¡Qué bonito nombre!"
+    pa sonriente "Pues entonces, quedamos a las nueve aquí mismo.\nEstaré ansioso hasta que sea la hora."
+    ma preocupado "¡¿Aquí?!\n¿No estará esto muy solitario y oscuro a esas horas?"
+    pa expectante "¡Qué va!\nAdemás llegaré yo un poco antes si así estás más tranquila.\n¿Vale?"
+    ma picaro "OK, ji, ji, ji."
+    pa sonrojado "Nos vemos entonces a esa hora, [temp].\nCiao."
+    ma colorado "Ciao."
+    hide pao with moveoutright
+    pause
+    ma sonriente "Oh, creo que..."
+    ma colorado "¡Me he enamorado!"
+    play sound effect.pasar_zumbando
+    show jes alegre at right with moveinright
+    show icecream:
+        pos (800, 568)
+    show maru enfadado
+    show jes sonriente
+    je "¡Hey, ¿con quién estabas hablando?\n¿Y por qué tienes esa cara de boba?"
+    ma "No es asunto tuyo, niñata."
+    je "Pues como no me lo digas, me chivo a mamá."
+    menu:
+        "Anda, no seas mala.":
+            $cho_status= False
+            je picaro "Te conozco, hermanita, algo estás tramando.\nY lo descubriré."
+            je sonriente "Y cuando lo descubra, te haré chantaje.\nMe tendrás que comprar todas las gososinas del mundo, ji, ji, ji."
+        "{i}{color=#ff6347}\[Ponerle el helado como sombrero\]{/color}{/i} ¡TE VAS A ENTERAR!":
+            $cho_status= True
+            show icecream:
+                linear 0.8 pos (800,120)
+                linear 0.8 pos (1000,120)
+                yzoom -1
+                pause 0.5
+                linear 0.5 pos (1000,210)    
+            $renpy.pause(2.6, hard=True)
+            play sound effect.golpe_seco_2
+            je lloroso "¡¡¡MAMÁ!!! ¡¡¡MAMÁ!!! ¡¡¡BUAHHH!!!"
+            ma picaro "Ja, ja, ja.\nJÓ-DE-TE."
+    $c.me.choices[2]= Choice(cho_status, "Le pusiste un helado a tu hermana Jesica en la cabeza.")   
+    play sound effect.hacer_scroll    
+    scene bg insti_puerta
+    show screen inventory_button
+    $now_datetime.UpdateDatetime(2015, 9, 15, 7, 29)
+    show screen current_datetime
+    show vio expectante at center
+    with slideleft
+    play music music.farty_mcsty fadein 2 fadeout 2
+    vi "Oh, qué emocionante historia. Por favor, sigue."
+    vi "Jo, ¿por qué a mí no me pasan esas cosas?\nMe parece súper injusto, ea."
+    menu:
+        "Quizá porque eres... ¿fea?":
+            play sound effect.ups
+            $c.violeta.change_affinity(False,0)
+            show screen comment("Violeta piensa que eres demasiado cruel.")
+            vi enfadado "Ah, la princesita piensa que las demás no podemos ligarnos a un tío buenorro, ¡juas!"    
+        "{i}{color=#5bd53f}\[Te muerdes la lengua\]{/color}{/i}":
+            pass  
+    show vio neutral
+    vi expectante "A ver, ¿cómo acabó la historia con el italiano?\nMe muerdo las uñas para saber el final."
+    play sound effect.alarma
+    $renpy.pause(1.0, hard=True)
+    ma neutral "Más tarde. Ha sonado la campana.\nVámonos para clase."
+    vi chulesco "OK, pero en el recreo me vas a contar hasta el último detalle..."
+    scene bg insti_edificio_manana
+    $now_datetime.UpdateDatetime(2015, 9, 15, 7, 31)
+    show screen current_datetime
+    show nac sorprendido at center
+    show ant sorprendido at right
+    with dissolve
+    play music music.burglars fadein 2 fadeout 2
+    na " ..."
+    an "..."
+    $c.me.AddFriend(c.antia, True, True)
+    ma alegre "Hey. ¡Hola, Antía! Nacho...\n¿De qué estabais hablando?"
+    na asustado "Eh... No... Nada..."
+    an timido "... ... ... Hola... Maru"    
+    ma suspicaz "Mmm... No sé yo, estáis muy raros.\nY esas caras..."
+    menu:
+        "¿Os pasa algo?":
+            na sorprendido "¿A nosotros? Nada.\nJa, qué cosas tienes..."
+            an sorprendido "Maru, sólo charlabamos de lo que hicimos este verano."
+        "¡¿Qué cojones estáis tramando?!":
+            if c.me.choices[0].status== True:
+                show screen comment("Nacho está harto de tus intromisiones.")
+                na enfadado "Maru, no sé que mosca te ha picado este verano. Pero estás realmente INSOPORTABLE."
+                $c.nacho.change_affinity(False, 0)        
+                an engreido "Sí, la verdad, Maru, ¡sólo estabamos charlando amigablemente!\nLo que hay que escuchar a veces...\nEjem..." 
+            else:
+                na sorprendido "¿Eh? Nada. No sé porque te rayas."
+                an enfadado "Maru, cariño, relajate. Solo le estaba contando lo bien que me lo pasé este verano."
+    show nac neutral
+    show ant neutral
+    ma suspicaz "Y yo me lo tendré que creer, ¿no?"
+    ma tierno "Bueno. Entonces Antía, ¿cómo te fue a ti?\nQue Nacho ya me contó de lo suyo."
+    an sonriente "Oh. Fui un campamento de verano. En Estepona. Fue súper divertido.\nMe lo pasé bomba."
+    na chulo "Ja, ja, ja, Antía. Los campamentos son para los niños pequeños."    
+    play sound effect.shock2
+    an cabreado "Agh, Nacho, cállate. Me lo va a decir alguien que todavía duerme con su oso de peluche de la infancia..." with Shake()
+    na colorado "Jo, {i}Fofó{/i} no es un oso cualquiera.\nEs mi mejor amigo y me cuida por las noches para que duerma."
+    an alegre "¡Ja, ja, ja!"
+    ma sonriente "¡Ja, ja, ja!"
+    show nac sonriente
+    an sonriente "No era un campamento normal. Fue un campamento para jovenes artistas.\nAllí hicimos talleres de pintura, escritura... y compartimos experiencias."
+    ma tierno "Qué guay. Se nota que eres la cerebrito del grupo. Aprovechaste el verano para formarte.\nNo como el resto, que estuvimos de jarana y fiesta."
+    an colorado "Bueno... ejem.. tambien hubo tiempo para la diversión."
+    na engreido "Bueno, chicas, vamos para clase. Que ya sonó el timbre hace un rato.\nNo podemos llegar tarde ya el primer día."
+    hide nac with moveoutleft
+    show ant at center with moveoutleft
+    an engreido "Espera un momento, Maru. En el campamento nos pasabamos las noches jugando a los {i}8 Locos{/i} alrededor de la fogata.\nÉchemos una partida rápida. Ya verás lo que he mejorado."
+    $youwin= game_start(c.antia, "Jo, al final, no soy tan buena como yo creía.", "Ya ves, he vuelto siendo toda una profesional.")
+    if youwin== True:
+        show ant triste
+        ma picaro "Si quieres, te doy clases para que mejores más.\nLo necesitas, ja, ja, ja."
+    else:
+        an alegre "Estás en baja forma, amiga, ja, ja, ja."
+    hide ant with moveoutleft
+    show car at center with moveinright
+    ca normal "Hola. ¿Me puedes ayudar?"
+    ca alegre "Perdón, me presento. Me llamo Carmen. Y soy nueva es este instituto.\nEstoy buscando la clase de 3º B..."
+    ca normal "Y me dije a mi misma: A ver, si esa simpática niña me puede ayudar, je, je."
+    ma suspicaz "..."
+    $c.me.AddFriend(c.carmen, True, True)
+    menu:
+        "Qué casualidad. Vamos a la misma clase.\nSi quieres, acompáñame.":
+            $cho_status= True            
+            show screen comment("Carmen cree que eres educada.")
+            $c.carmen.change_affinity(True, 0)                        
+            ca alegre "¡¿Oh, sí?! ¡Qué ilusión, podemos ser amigas, ¿verdad?"
+            menu: 
+                "Con el tiempo a lo mejor sí":
+                    show screen comment("A Carmen le caes genial.")                    
+                    $c.carmen.change_affinity(True, 1)
+                    ca alegre "Claro. A mí me encantaría."
+                "Bueno, tampoco te pases, eh.":
+                    ca engreido "Claro, claro. Es que mis papis me dijeron que el primer día de clase había que hacer amigos.\nY me he embalado, ji, ji."
+        "No me incordies y espabila, monina.":
+            $cho_status= False
+            play sound effect.golpe_dramatico
+            show screen comment("Carmen opina que eres muy maleducada.")
+            $c.carmen.change_affinity(False, 1)
+            ca lloroso "..."
+    $c.me.choices[3]= Choice(cho_status, "Te ofreciste a acompañar a Carmen a su/vuestra clase.") 
+    scene bg insti_entrada_principal_manana
+    show vio neutral at center
+    show nac neutral at right
+    with dissolve    
+    pause
+    play sound effect.golpe_dramatico
+    vi enfadado "¡Maru! ¿Dónde te metiste?\n¡Qué vamos a llegar tarde el primer día de clase!" with Shake()
+    na enfadado "Violeta, veo que tu caracter se agria más y más por momentos..."
+    play sound effect.golpe_dramatico
+    vi chulesco "¡Qué te den!\nTú como vives a todo trapo gracias a tus papis que te dan todo hecho..."
+    na picaro "Serás puta..."
+    ma emocionado "¡Tranquilos amigos! Nada más empezar el curso no nos podemos pelear."
+    pause
     #<--End of game
 label end:
     return
@@ -291,8 +397,5 @@ label end:
 label LoadGUI:
     show screen inventory_button #Show the button of the inventory
     show screen back_button #Show the button to rollback 
-    return    
-label UpdateToday:
-    show screen today
     return
     

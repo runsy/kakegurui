@@ -5,6 +5,9 @@ init:
     alpha 0 # makes image transparent
     linear 0.5 alpha 1.0 # takes 0.5 seconds to make image fully opaque. adjust as needed.
 
+  transform atlhideinright:
+    linear 1.0 xpos 0.0
+
 #Love Effect
   image heartbeat= im.FactorScale("img/effects/heartbeat.png", 0.05)
 
@@ -100,7 +103,7 @@ init:
 
                  
         def _Shake(start=(0.5, 1.0, 0.5, 1.0), time=1.0, child=None, dist=5.0, **properties):            
-            move = Shaker(start, child, dist=dist)        
+            move = Shaker(start, child, dist=dist)                    
             return renpy.display.layout.Motion(move,
                           time,
                           child,

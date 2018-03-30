@@ -3,6 +3,7 @@
 #Definitions
 image rose= im.FactorScale("img/item/rose.png", 0.3)
 image log= im.FactorScale("img/item/log.png", 0.3)
+image icecream= im.FactorScale("img/item/icecream.png", 0.8)
 
 #Transforms
 transform _show_item:    

@@ -6,8 +6,8 @@ image heart= im.FactorScale("img/beatmeter/heart.png", 0.17)
 image affinity= im.FactorScale("img/beatmeter/affinity.png", 0.17)
 
 screen inventory_button:
- vbox xalign 0 yalign 0:
-  textbutton "Pulsómetro" action ui.callsinnewcontext("aff_screen_label")
+    vbox xalign 0 yalign 0:
+        textbutton "Pulsómetro" action ui.callsinnewcontext("aff_screen_label")
   
 screen aff_screen:
  vbox:
@@ -15,12 +15,12 @@ screen aff_screen:
   xalign 0.5 yalign 0.5
   frame:
    hbox:
-    text "{color=ffffff}Dinero: [me.money]{/color} "
+    text "{color=ffffff}Dinero: [c.me.money]{/color} "
     image("euro_coin")  
   frame:
    vbox:
     hbox:
-     for friend in me.friendslist:
+     for friend in c.me.friendslist:
       if friend.isknown & friend.isfriend:
        vbox:
         text "{color=ffffff}[friend.name]{/color}" at center
@@ -44,14 +44,19 @@ screen aff_screen:
    vbox:
     text "Inventario" at center
     hbox:
-     for item in me.items:      
+     for item in c.me.items:      
        vbox:
         image("[item.filename]") at center
         text "{size=-4}{color=ffffff}[item.name]{/color}{/size}" at center
   frame:
     vbox:
-     textbutton "Volver" action Return()
- 
+        textbutton "Volver":
+            action Return()
+            tooltip "Cierra el inventario"
+        $tooltip= GetTooltip()
+  if tooltip:
+    text "[tooltip]"
+
 label aff_screen_label:
  call screen aff_screen
  return

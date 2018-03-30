@@ -2,20 +2,28 @@ python early:
     
     #HERE I DEFINE SOME CLASSES
 
+    #To assign an object to a dictionary
+    class Bunch(object):
+        def __init__(self, adict):
+            self.__dict__.update(adict)
+
     #--------------------------------------------
     #Define the player's choices that affect the story
     class Choice:
-        def __init__(self, id, status, description):
-            self.id= id
+        def __init__(self, status, description):
             self.status= status
             self.description= description       
 
-    # 1: Le preguntasté a Nacho acerca de su nueva relación.  
-    # 2: Mentiste a Paolo sobre tu verdadero nombre (María)
+    # LIST OF CHOICES ######################
+    ##### YOUR CHOICES ###################
+    # 0: Le preguntasté a Nacho acerca de su nueva relación.  
+    # 1: Mentiste a Paolo sobre tu verdadero nombre (María)
+    # 2: Le pusiste un helado a tu hermana Jesica en la cabeza.
+    # 3: Te ofreciste a acompañar a Carmen a su/vuestra clase.
     #--------------------------------------------
     #Define the Today date
     #05/10/09 18:00
-    class TodayClass:   
+    class NowClass:   
     
         def __init__(self, year, month, day, hour, minute):
             import datetime
@@ -25,8 +33,17 @@ python early:
             months= ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dec"]
             self.month= months[month-1]
             days= ["Lun","Mar","Mie","Jue","Vie","Sab","Dom"]
+            self.dayofweek= days[self.datetime.weekday()]            
+        
+        def UpdateDatetime(self, year, month, day, hour, minute):
+            import datetime
+            self.datetime= datetime.datetime(year, month, day, hour, minute)
+            self.day= self.datetime.strftime("%d") 
+            months= ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dec"]
+            self.month= months[month-1]
+            days= ["Lun","Mar","Mie","Jue","Vie","Sab","Dom"]
             self.dayofweek= days[self.datetime.weekday()] 
-            
+
         def IncDay(self):
             import datetime
             import timedelta
@@ -39,12 +56,13 @@ python early:
     #--------------------------------------------   
     #Define the item class
     class Item:
-        def __init__(self, id, name, filename, value, important):
+        def __init__(self, id, name, filename, value, important, tooltip):
             self.id= id
             self.name= name
             self.filename= filename
             self.value= value
             self.important= important
+            self.tooltip= tooltip
     #--------------------------------------------   
     #Define the Friend class
     class Friend:
@@ -67,7 +85,7 @@ python early:
             self.adversary= adversary
             self.affinity= affinity
             self.charobj= charobj
-            self.choices= []
+            self.choices= {}
             self.deck= []    
             self.friendslist= []
             self.items= []
@@ -82,6 +100,13 @@ python early:
             self.victorycount= victorycount
             self.downcount= downcount
             self.gamecount= gamecount
+
+        #Add a new friend
+        def AddFriend(self, Character, IsKnown, IsFriend):
+            global c
+            Character.isknown= IsKnown
+            Character.isfriend= IsFriend
+            self.friendslist.append(Character)
 
         #Buy item 
         def buy(self, item):
@@ -129,10 +154,7 @@ python early:
                 self.affinity=0
             elif self.affinity>100:
                 self.affinity=100
-            if self.affinity>=40:
-                self.isfriend= True
-            else:
-                self.isfriend= False
+
         #Edit the love meter
         def change_love(self, inc, level):
             if level==0:
