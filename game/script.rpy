@@ -97,7 +97,7 @@ label primer_acto:
             show screen comment("Nacho piensa que eres muy cotilla")
             na enfadado "¡¿Qué?! ¿Quién te ha contado eso?"
             na colorado "Ejem... prefiero no hablar. Lo siento."             
-        "{i}{color=#5bd53f}\[Ser discreta\]{/color}{/i} Ah, qué interesante.":
+        "{=green_text}\[Ser discreta\]{/green_text} Ah, qué interesante.":
             $cho_status= False
     $c.me.choices[0]= Choice(cho_status, "Le preguntasté a nacho acerca de su nueva relación.")
     na neutral "Bueno, voy entrando. A ver si veo a más colegas. Ciao"
@@ -232,7 +232,7 @@ label primer_acto:
         "Me llamo Maru.":                        
             $cho_status= False
             $temp= "Maru"
-        "{i}{color=#ff6347}\[Mentir\]{/color}{/i} Ein... Ups... Me llamo M-M-María...":            
+        "{=red_text}\[Mentir\]{/red_text} Ein... Ups... Me llamo M-M-María...":            
             $cho_status= True
             $temp= "María"
     $c.me.choices[1]= Choice(cho_status, "Mentiste a Paolo sobre tu verdadero nombre.")
@@ -261,7 +261,7 @@ label primer_acto:
             $cho_status= False
             je picaro "Te conozco, hermanita, algo estás tramando.\nY lo descubriré."
             je sonriente "Y cuando lo descubra, te haré chantaje.\nMe tendrás que comprar todas las gososinas del mundo, ji, ji, ji."
-        "{i}{color=#ff6347}\[Ponerle el helado como sombrero\]{/color}{/i} ¡TE VAS A ENTERAR!":
+        "{=red_text}\[Ponerle el helado como sombrero\]{/red_text} ¡TE VAS A ENTERAR!":
             $cho_status= True
             show icecream:
                 linear 0.8 pos (800,120)
@@ -290,7 +290,7 @@ label primer_acto:
             $c.violeta.change_affinity(False,0)
             show screen comment("Violeta piensa que eres demasiado cruel.")
             vi enfadado "Ah, la princesita piensa que las demás no podemos ligarnos a un tío buenorro, ¡juas!"    
-        "{i}{color=#5bd53f}\[Te muerdes la lengua\]{/color}{/i}":
+        "{=green_text}\[Te muerdes la lengua\]{/green_text}":
             pass  
     show vio neutral
     vi expectante "A ver, ¿cómo acabó la historia con el italiano?\nMe muerdo las uñas para saber el final."
@@ -353,7 +353,7 @@ label primer_acto:
     hide ant with moveoutleft
     show car at center with moveinright
     ca normal "Hola. ¿Me puedes ayudar?"
-    ca alegre "Perdón, me presento. Me llamo Carmen. Y soy nueva es este instituto.\nEstoy buscando la clase de 3º B..."
+    ca alegre "Perdón, me presento. Me llamo Carmen. Y soy nueva en este instituto.\nEstoy buscando la clase de 3º B..."
     ca normal "Y me dije a mi misma: A ver, si esa simpática niña me puede ayudar, je, je."
     ma suspicaz "..."
     $c.me.AddFriend(c.carmen, True, True)
@@ -385,10 +385,98 @@ label primer_acto:
     play sound effect.golpe_dramatico
     vi enfadado "¡Maru! ¿Dónde te metiste?\n¡Qué vamos a llegar tarde el primer día de clase!" with Shake()
     na enfadado "Violeta, veo que tu caracter se agria más y más por momentos..."
-    play sound effect.golpe_dramatico
     vi chulesco "¡Qué te den!\nTú como vives a todo trapo gracias a tus papis que te dan todo hecho..."
-    na picaro "Serás puta..."
-    ma emocionado "¡Tranquilos amigos! Nada más empezar el curso no nos podemos pelear."
+    play sound effect.ups
+    show vio rabioso
+    na enfadado "Serás puta..."
+    ma emocionado "¡¡¡EH!!! ¡Tranquilos! Nada más empezar el curso no nos podemos pelear."
+    ma emocionado "Recordad que somos amigos. Los cuatro mosqueteros: Violeta, Nacho, Antía y yo."
+    show vio triste
+    na sorprendido "Los mosqueteros eran tres, no cuatro."
+    ma tierno "Que más da el número. Todos para uno y uno para todos.\n¿O ya no os acordáis?"    
+    show nac neutral
+    vi neutral "Tienes razón en la de líos que nos hemos metido desde que nos conocemos en preescolar. Y de juergas también."
+    show vio sonriente
+    na sonriente "Y las que nos quedan... ja, ja, ja."
+    play sound effect.pasar_zumbando
+    show car  alegre at left with moveinleft
+    ca alegre "¡Hola, holita, chavalada! Ji, ji, ji."
+    if c.me.choices[3].status== True:
+        ca engreido "Eh, tía rubia, ¿me presentas a tus amigos?\nMe gustaría formar parte de vuestra cuchipandi."
+        ma sorpendido "Ups, qué despiste el mío, no me había presentado. Yo, me llamo Maru, y estos son mis amigos."
+        show car alegre
+        show vio neutral
+        ma normal "La del pelo rosa es Violeta. Es la cabeza loca del grupo. Pero tiene un fondo súper tierno."
+        show nac chulo
+        ma "El otro es Nacho. Que no te confundan las apariencias, tiene pinta de pijo, pero cuando le conoces es un cañero y un tío legal."
+        ma "Y ella es Carmen, va a ir con nosotros en 3º B. Me ofrecí a guiarla por el instituto el primer día."      
+    else:
+        ca colorado "A ver si me podéis ayudar vosotros. Estoy buscando la clase de 3º B."
+        ma encendido "Ya te he dicho que te des el piro, vampiro. Mira que eres pesadita."
+        ca enfadado "Pero ellos tendrán algo que decir, digo yo. O hablas tú por ellos todo..."
+        vi sonriente "Oh, qué mal rollo. Hola, yo me llamo Violeta. Si preguntas por mi en el insti, te dirán que soy un poco rarita.\nNo les hagas caso, son todos unos gilipollas."
+        na chulo "Yo soy Nacho. El terror de las nenas. Si preguntas por mí en el insti, las niñas te dirán que soy irresistible y los tíos un tío guay."
+        vi creido "Menos lobos, chavalote, juas."
+        ca colorado "Encantada. Yo me llamo Carmen. Soy nueva."
+        vi expectante "Maru, ¿y a ti qué puñetas te pasa con esta niña?\nParece que no te cae bien."
+        menu:
+            "Me cae como el culo, la verdad.":
+                ca picaro "Pues qué pena, pero tú te lo pierdes..."
+                ma encendido "Grrr..."
+            "No sé, me da mala espina.":
+                ca picaro "No tengo nada que esconder, soy limpia y transparente como el agua, ji, ji, ji."
+                ma encendido "{i}{color=#b0b0b0}\[Hablas por lo bajini\]{/color}{/i} No te lo crees ni tú."
+            "{=gray_text}\[Callarse\]{/gray_text} ...":
+                pass
+    show nac neutral
+    show vio neutral
+    ca normal "Mi papá es militar y lo destinaron a esta isla.\n¡Me encanta que aquí haga buen tiempo todo el año!"
+    ca alegre "Me gusta ver pelis y hacer senderismo entre otras cosas. Me gustaría hacer nuevos amigos, ji, ji. ji."
+    if c.me.choices[3].status== True:
+        $cho_status= None
+        ma sonriente "Qué guay. Podemos hacer muchas cosas juntos; quiero decir, todos juntos. ¿Verdad, chicos?"
+        vi expectante "Pues claro, este año lo vamos a arrasar en el instituto."
+        na asustado "¡Uf, qué peligro! Erais pocas las chicas y parió la abuela..."
+        vi sonriente "¡Las mujeres al poder! Ja, ja, ja."
+    else:
+        menu:
+            "Bueno, a lo mejor te doy una oportunidad...":
+                $cho_status= True
+                $c.carmen.change_affinity(True, 1)                
+                ca alegre "¡Oh!, ¿en serio? Por mí estupendo.\nYa verás como tú y yo congeniamos a las mil maravillas."
+                show screen comment("A Carmen le mola tu actitud positiva")
+                vi sonriente "Carmen, ya verás como Maru es una buena tipa. Un poco tontaina a veces, pero de buen corazón." 
+            "Ni de puta coña seré tu amiga nunca":
+                $cho_status= False
+                show car cabreada
+                play sound effect.shock2
+                vi rabioso "¡Maru! No sé porque eres tan mala con esta chica..." with Shake()
+                ma encendido "No me parece trigo limpio. Seguro que es una mosquita muerta.\nA mí no me engaña."
+                ca enfadado ".... ...."
+                $c.carmen.change_affinity(False, 1)   
+                show screen comment("Carmen te odia")
+                ca normal "Bueno, allá tú... ji, ji, ji."
+    $c.me.choices[4]= Choice(cho_status, "Le das a Carmen una nueva oportunidad.")
+    show vio neutral
+    show nac neutral
+    show car engreido
+    ma picaro "Hala, chicos, a clase."
+    if (c.me.choices[3].status== False) and (c.me.choices[4].status== False):
+        hide nac
+        hide vio
+        with moveoutright
+        show car cabreado at center
+        with moveinright
+        play sound effect.shock2
+        ca cabreado "A ver, Maru, cariño. Si me tocas los cojones, yo te los tocaré a ti." with Shake()
+        ma enfadado "¡¿Me estás amenazando?! ¡¿A mí?!"
+        ca enfadado "Tómalo como una advertencia, por el momento..."
+        hide car with moveoutleft
+        ma preocupado "¡Lo sabía! Voy a tener que tener mucho cuidado con esta lagarta."
+        $cho_status= True
+    else:
+        $cho_status= False
+    $c.me.choices[5]= Choice(cho_status, "Has descubierto que Carmen no es trigo limpio.") 
     pause
     #<--End of game
 label end:

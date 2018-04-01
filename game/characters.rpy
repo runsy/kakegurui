@@ -122,4 +122,5 @@ image car engreido= im.FactorScale("img/char/carmen/ca_engreido.png", 0.8)
 image car lloroso= im.FactorScale("img/char/carmen/ca_lloroso.png", 0.8)
 image car preocupado= im.FactorScale("img/char/carmen/ca_preocupado.png", 0.8)
 image car triste= im.FactorScale("img/char/carmen/ca_triste.png", 0.8)
+image car normal= im.FactorScale("img/char/carmen/ca_normal.png", 0.8)
 #---------

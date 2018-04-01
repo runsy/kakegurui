@@ -54,8 +54,8 @@ screen aff_screen:
             action Return()
             tooltip "Cierra el inventario"
         $tooltip= GetTooltip()
-  if tooltip:
-    text "[tooltip]"
+        if tooltip:
+            text "[tooltip]"
 
 label aff_screen_label:
  call screen aff_screen

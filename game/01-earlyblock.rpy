@@ -20,7 +20,8 @@ python early:
     # 1: Mentiste a Paolo sobre tu verdadero nombre (María)
     # 2: Le pusiste un helado a tu hermana Jesica en la cabeza.
     # 3: Te ofreciste a acompañar a Carmen a su/vuestra clase.
-    #--------------------------------------------
+    # 4: Le das a Carmen una nueva oportunidad.
+    # 5: Has descubierto que Carmen no es trigo limpio.
     #Define the Today date
     #05/10/09 18:00
     class NowClass:   
