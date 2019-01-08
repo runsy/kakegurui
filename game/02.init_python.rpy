@@ -299,8 +299,7 @@ init python:
         me_turn= bool(random.getrandbits(1))
         #Save the previous me_turn value (True or False)
         previous_me_turn= me_turn
-        while (game.MeScore<100) and (game.AdversaryScore<100):
-            break
+        while (game.MeScore<100) and (game.AdversaryScore<100):            
             firsthand_create()                            
             first_turn= True
             if game.RoundCount>0: #Switch the turn at each round

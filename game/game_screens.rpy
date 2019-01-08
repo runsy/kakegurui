@@ -5,7 +5,7 @@ screen gameinfo(comment_text, _time= 1.5):
   background RoundRect("#ae426f")
   hbox:
    timer _time repeat False action [Hide('gameinfo')]
-   text "{size=-3}{color=ffffff}[comment_text]{/color}{/size}" 
+   text "{size=-3}{color=000000}[comment_text]{/color}{/size}" 
 screen adversary_data():
     layer "game"
     frame xalign 0.5 ypos 0.1:
@@ -20,7 +20,7 @@ screen adversary_data():
                 #_cards= _cards+str(item2[0])+str(item2[1])+", "
         background RoundRect("#00ae426f")  
         hbox:
-            label _adversary_cards
+            label _adversary_cards text_style "game_data_text"
             #label _cards
 
 screen game_data():
@@ -34,13 +34,13 @@ screen game_data():
         background RoundRect("#00ae426f")  
         vbox:
             hbox:
-                label _roundcount
+                label _roundcount text_style "game_data_text"
             hbox:
-                label _turncount
+                label _turncount text_style "game_data_text"
             hbox:
-                label _mescore
+                label _mescore text_style "game_data_text"
             hbox:
-                label _adversaryscore
+                label _adversaryscore text_style "game_data_text"
 
 
 transform fade_card:      

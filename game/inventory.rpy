@@ -15,7 +15,7 @@ screen aff_screen:
   xalign 0.5 yalign 0.5
   frame:
    hbox:
-    text "{color=ffffff}Dinero: [c.me.money]{/color} "
+    text "{color=000000}Dinero: [c.me.money]{/color} "
     image("euro_coin")  
   frame:
    vbox:
@@ -23,7 +23,7 @@ screen aff_screen:
      for friend in c.me.friendslist:
       if friend.isknown & friend.isfriend:
        vbox:
-        text "{color=ffffff}[friend.name]{/color}" at center
+        text "{color=000000}[friend.name]{/color}" at center
         image("side [friend.name]_pulsometer") at center
         vbox:
          hbox:
@@ -47,7 +47,7 @@ screen aff_screen:
      for item in c.me.items:      
        vbox:
         image("[item.filename]") at center
-        text "{size=-4}{color=ffffff}[item.name]{/color}{/size}" at center
+        text "{size=-4}{color=000000}[item.name]{/color}{/size}" at center
   frame:
     vbox:
         textbutton "Volver":

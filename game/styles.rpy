@@ -11,3 +11,7 @@ style green_text:
 style gray_text:
     color "#b0b0b0"
     italic True
+
+style game_data_text:
+    color "#006600"
+    size 22
