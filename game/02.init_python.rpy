@@ -280,7 +280,7 @@ init python:
 
     def game_start(Charact, YouWinMsg, YouLoseMsg):
         global c
-        global game     
+        global game
         renpy.hide_screen("current_datetime")  #Hide the time indicator
         renpy.block_rollback() #Block the Back dialogue button
         CurrentMusic= renpy.music.get_playing() #Save the current music filename
@@ -299,7 +299,8 @@ init python:
         me_turn= bool(random.getrandbits(1))
         #Save the previous me_turn value (True or False)
         previous_me_turn= me_turn
-        while (game.MeScore<100) and (game.AdversaryScore<100):            
+        while (game.MeScore<100) and (game.AdversaryScore<100):
+            break          
             firsthand_create()                            
             first_turn= True
             if game.RoundCount>0: #Switch the turn at each round

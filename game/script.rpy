@@ -121,9 +121,10 @@ label primer_acto:
     ma sonriente "Roma es una ciudad super chula. Aunque está muy sucia y hay piedras tiradas por todas partes, jeje."
     ma "Como te dije fui con mi madre y hermana, lo que era un tostón extra. Y hacía un calor que te cagas."
     scene bg ruinas_romanas with irisin
-    show maru preocupado at center:
+    show maru jeans preocupado at center:
        xzoom -1.0
     show mama feliz at right with dissolve
+    pause
     ma preocupado "Uf, qué calor. Y qué cansada estoy. Llevamos todo el día de aquí para allá.\nEl Foro, el Colíseo, las Termas..."
     mama irritado "¡Maru! Empápate de la cultura de este país milenario y deja de quejarte, anda."
     show maru sorprendido at center
@@ -138,7 +139,7 @@ label primer_acto:
     menu:
         "Tú eres tonta.":
             play sound effect.shock2  
-            show maru alegre
+            show maru alegre jeans
             je enfadado "¡¡¡LA TONTA ERES TÚ!!!" with Shake()
         "Cariño, haz caso a mamá...":
             show maru enfadado
@@ -421,10 +422,10 @@ label primer_acto:
         vi expectante "Maru, ¿y a ti qué puñetas te pasa con esta niña?\nParece que no te cae bien."
         menu:
             "Me cae como el culo, la verdad.":
-                ca picaro "Pues qué pena, pero tú te lo pierdes..."
+                ca engreido "Pues qué pena, pero tú te lo pierdes..."
                 ma encendido "Grrr..."
             "No sé, me da mala espina.":
-                ca picaro "No tengo nada que esconder, soy limpia y transparente como el agua, ji, ji, ji."
+                ca engreido "No tengo nada que esconder, soy limpia y transparente como el agua, ji, ji, ji."
                 ma encendido "{i}{color=#b0b0b0}\[Hablas por lo bajini\]{/color}{/i} No te lo crees ni tú."
             "{=gray_text}\[Callarse\]{/gray_text} ...":
                 pass
@@ -448,7 +449,7 @@ label primer_acto:
                 vi sonriente "Carmen, ya verás como Maru es una buena tipa. Un poco tontaina a veces, pero de buen corazón." 
             "Ni de puta coña seré tu amiga nunca":
                 $cho_status= False
-                show car cabreada
+                show car cabreado
                 play sound effect.shock2
                 vi rabioso "¡Maru! No sé porque eres tan mala con esta chica..." with Shake()
                 ma encendido "No me parece trigo limpio. Seguro que es una mosquita muerta.\nA mí no me engaña."

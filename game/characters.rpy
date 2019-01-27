@@ -2,16 +2,23 @@
 #----------
 #Maru
 define ma=Character("Maru", image="maru", color="#7620C7")
-image maru alegre= im.FactorScale("img/char/maru/maru_alegre.png", 0.65)
-image maru preocupado= im.FactorScale("img/char/maru/maru_preocupado.png", 0.65)
-image maru sorprendido= im.FactorScale("img/char/maru/maru_sorprendido.png", 0.65)
-image maru enfadado= im.FactorScale("img/char/maru/maru_enfadado.png", 0.65)
-image maru lloroso= im.FactorScale("img/char/maru/maru_lloroso.png", 0.65)
-image maru sonriente= im.FactorScale("img/char/maru/maru_sonriente.png", 0.65)
-image maru picaro= im.FactorScale("img/char/maru/maru_picaro.png", 0.65)
-image maru triste= im.FactorScale("img/char/maru/maru_triste.png", 0.65)
-image maru colorado= im.FactorScale("img/char/maru/maru_colorado.png", 0.65)
-image maru normal= im.FactorScale("img/char/maru/maru_normal.png", 0.65)
+#image maru base= im.FactorScale("img/char/maru/maru_base.png", 0.65)
+#image maru alegre= im.FactorScale("img/char/maru/maru_cara_alegre.png", 0.65)
+#image maru preocupado= im.FactorScale("img/char/maru/maru_cara_preocupado.png", 0.65)
+#image maru sorprendido= im.FactorScale("img/char/maru/maru_cara_sorprendido.png", 0.65)
+#image maru enfadado= im.FactorScale("img/char/maru/maru_cara_enfadado.png", 0.65)
+#image maru lloroso= im.FactorScale("img/char/maru/maru_cara_lloroso.png", 0.65)
+#image maru sonriente= im.FactorScale("img/char/maru/maru_cara_sonriente.png", 0.65)
+#image maru picaro= im.FactorScale("img/char/maru/maru_cara_picaro.png", 0.65)
+#image maru triste= im.FactorScale("img/char/maru/maru_cara_triste.png", 0.65)
+#image maru colorado= im.FactorScale("img/char/maru/maru_cara_colorado.png", 0.65)
+#image maru normal= im.FactorScale("img/char/maru/maru_cara_normal.png", 0.65)
+#Ropa
+#image maru jeans= im.FactorScale("img/char/maru/maru_ropa_jeans.png", 0.65)
+#image maru vestido_rojo= im.FactorScale("img/char/maru/maru_ropa_vestido_rojo.png", 0.65)
+#image maru pantalones= im.FactorScale("img/char/maru/maru_ropa_pantalones.png", 0.65)
+#image maru falda= im.FactorScale("img/char/maru/maru_ropa_falda.png", 0.65)
+#Side Images
 image side maru= "img/char/maru/maru_side.png"
 image side maru alegre= "img/char/maru/maru_side_alegre.png"
 image side maru asustado= "img/char/maru/maru_side_asustado.png"
@@ -30,6 +37,37 @@ image side maru sorprendido= "img/char/maru/maru_side_sorprendido.png"
 image side maru suspicaz= "img/char/maru/maru_side_suspicaz.png"
 image side maru tierno= "img/char/maru/maru_side_tierno.png"
 image side maru triste= "img/char/maru/maru_side_triste.png"
+layeredimage maru:
+    group cara:
+        attribute normal default:
+            im.FactorScale("img/char/maru/maru_cara_normal.png", 0.64)
+        attribute triste:
+            im.FactorScale("img/char/maru/maru_cara_triste.png", 0.64)
+        attribute sorprendido:
+            im.FactorScale("img/char/maru/maru_cara_sorprendido.png", 0.64)
+        attribute picaro:
+            im.FactorScale("img/char/maru/maru_cara_picaro.png", 0.64)
+        attribute sonriente:
+            im.FactorScale("img/char/maru/maru_cara_sonriente.png", 0.64)
+        attribute lloroso:
+            im.FactorScale("img/char/maru/maru_cara_lloroso.png", 0.64)
+        attribute enfadado:
+            im.FactorScale("img/char/maru/maru_cara_enfadado.png", 0.64)
+        attribute colorado:
+            im.FactorScale("img/char/maru/maru_cara_colorado.png", 0.64)
+        attribute alegre:
+             im.FactorScale("img/char/maru/maru_cara_alegre.png", 0.64)
+        attribute preocupado:
+            im.FactorScale("img/char/maru/maru_cara_preocupado.png", 0.64)
+    group ropa:
+        attribute jeans default:
+            im.FactorScale("img/char/maru/maru_ropa_jeans.png", 0.64)
+        attribute vestido_rojo:
+            im.FactorScale("img/char/maru/maru_ropa_vestido_rojo.png", 0.64)
+        attribute falda:
+            im.FactorScale("img/char/maru/maru_ropa_falda.png", 0.64)
+        attribute pantalones:
+            im.FactorScale("img/char/maru/maru_ropa_pantalones.png", 0.64)
 #----------
 #Violeta
 define vi=Character("Violeta", image="vio", color="#c40fb1")
